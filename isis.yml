@@ -1,0 +1,10 @@
+name: isis_for_asap
+channels:
+  - nasa-ames-stereo-pipeline
+  - usgs-astrogeology
+  - conda-forge
+dependencies:
+  - stereo-pipeline=3.5.0
+  - isis==8.0.3
+  - cspice
+  - rclone

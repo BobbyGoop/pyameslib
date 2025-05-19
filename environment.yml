@@ -1,0 +1,35 @@
+channels:
+    - nasa-ames-stereo-pipeline
+    - usgs-astrogeology
+    - conda-forge
+    - nodefaults
+dependencies:
+    - python=3.11
+    - pip
+    - stereo-pipeline=3.5.0
+    - isis=8.3.0
+    - cspice
+    - rclone
+    - ale
+    - black
+    - nb_conda_kernels
+    - jupyterlab
+    - fire
+    - pyproj
+    - shapely
+    - jupyterlab
+    - scipy
+    - numpy
+    - matplotlib
+    - requests
+    - fire
+    - sh
+    - pvl
+    - papermill
+    - rasterio
+    - pyproj
+    - tqdm
+    - affine
+    - pip:
+        - moody
+        - readme-renderer

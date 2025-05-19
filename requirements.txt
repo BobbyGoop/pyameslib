@@ -1,0 +1,9 @@
+requests
+fire
+sh>=2.0.0
+pvl
+papermill
+rasterio
+pyproj
+tqdm
+affine

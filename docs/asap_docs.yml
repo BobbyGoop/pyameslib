@@ -1,0 +1,23 @@
+name: asap_docs
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12
+  - numpy
+  - pvl
+  - sphinx==3.1.2
+  - requests
+  - pip
+  - ipython
+  - pygments
+  - pip:
+    - sphinx-copybutton
+    - sphinx_autodoc_typehints
+    - moody>=0.0.4
+    - rasterio
+    - pyproj
+    - papermill
+    - sh
+    - tqdm
+    - fire
