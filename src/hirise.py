@@ -193,10 +193,10 @@ class HiRISE(object):
             # download files
             Path(one).mkdir(exist_ok=True)
             with cd(one):
-                moody.ODE(self.https).hirise_edr(f'{one}_R*')
+                moody.ODE(self.https).download_hirise_edr(f'{one}_R*')
             Path(two).mkdir(exist_ok=True)
             with cd(two):
-                moody.ODE(self.https).hirise_edr(f'{two}_R*')
+                moody.ODE(self.https).download_hirise_edr(f'{two}_R*')
 
     @rich_logger
     def step_2(self):

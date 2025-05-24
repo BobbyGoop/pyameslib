@@ -1,7 +1,12 @@
 # ASAP-Stereo (Ames Stereo Automated Pipeline)
 
 ```shell
-jupyter notebook --no-browser --notebook-dir=/mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib
+jupyter lab --no-browser --notebook-dir=/mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib --port=8885 --autoreload --pylab
+```
+
+```shell
+FILENAME=notebooks/ctx_workflow.ipynb
+cat "$FILENAME" | jq '.metadata += {"language_info": {"file_extension":".py","mimetype":"text/x-python"}}' | sponge "$FILENAME"
 ```
 
 ![Documentation Status](https://readthedocs.org/projects/asap-stereo/badge/?version=main)

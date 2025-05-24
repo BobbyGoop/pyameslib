@@ -1,5 +1,7 @@
 import logging
 
+from src import moody
+
 logging.basicConfig(level=logging.INFO)
 
 from typing import Dict, Union
@@ -22,95 +24,145 @@ from src.utils.common import _processes, _threads_multiprocess, _threads_singlep
 
 
 class CommonSteps(object):
-    r"""
+    """
     ASAP Stereo Pipeline - Common Commands
 
-    █████████████████████████████████████████████████████████████
 
-              ___   _____ ___    ____
-             /   | / ___//   |  / __ \
-            / /| | \__ \/ /| | / /_/ /
-           / ___ |___/ / ___ |/ ____/
-          /_/  |_/____/_/  |_/_/      𝑆 𝑇 𝐸 𝑅 𝐸 𝑂
+    :ivar parallel_stereo: Команда ASP parallel_stereo — основной инструмент для
+     стереообработки изображений, выполняет все этапы построения цифровых моделей рельефа.
 
-          pyameslib (0.3.1)
+    :ivar point2dem: Команда ASP point2dem — преобразует облако точек в цифровую модель
+     рельефа (DEM) и ортофотоплан.
 
-          Github: https://github.com/AndrewAnnex/asap_stereo
-          Cite: https://doi.org/10.5281/zenodo.4171570
+    :ivar pc_align: Команда ASP pc_align — выравнивает облака точек или DEM относительно
+     эталонных данных (например, PEDR или другой DEM).
 
-    █████████████████████████████████████████████████████████████
+    :ivar dem_geoid: Команда ASP dem_geoid — корректирует значения высот DEM
+     относительно геоида.
+
+    :ivar geodiff: Команда ASP geodiff — вычисляет разницу между двумя DEM или DEM и
+     CSV-файлом с высотами.
+
+    :ivar mroctx2isis: Команда ISIS3 mroctx2isis — конвертирует исходные изображения
+     в формат ISIS3.
+
+    :ivar spiceinit: Команда ISIS3 spiceinit — добавляет SPICE-данные (геометрия, ориентация)
+     к ISIS-кубам.
+
+    :ivar spicefit: Команда ISIS3 spicefit — уточняет SPICE-данные для ISIS-кубов.
+
+    :ivar cubreduce: Команда ISIS3 reduce — уменьшает размер изображений (кубов)
+     по строкам и столбцам.
+
+    :ivar ctxcal: Команда ISIS3 ctxcal — выполняет радиометрическую калибровку изображений CTX.
+
+    :ivar ctxevenodd: Команда ISIS3 ctxevenodd — корректирует четные/нечетные
+     строки в изображениях CTX.
+
+    :ivar hillshade: Команда GDAL gdaldem hillshade — создает карту теней (hillshade) по DEM.
+
+    :ivar mapproject: Команда ASP mapproject — проецирует изображения на поверхность DEM.
+
+    :ivar ipfind: Команда ASP ipfind — находит интересные точки (interest points)
+     на изображениях.
+
+    :ivar ipmatch: Команда ASP ipmatch — сопоставляет интересные точки между изображениями.
+
+    :ivar gdaltranslate: Команда GDAL gdal_translate — преобразует и конвертирует растровые
+     изображения между форматами.
+
+    :ivar ba: Команда ASP parallel_bundle_adjust — выполняет пакетную (bundle)
+     фотограмметрическую уравниловку.
     """
 
-    defaults_ps_s0 = {
-        '--processes': _processes,
-        '--threads-singleprocess': _threads_singleprocess,
-        '--threads-multiprocess': _threads_multiprocess,
-        '--entry-point': 0,
-        '--stop-point': 1,
-        '--bundle-adjust-prefix': 'adjust/ba'
-    }
+    parallel_stereo: Command
+    point2dem: Command
+    pc_align: Command
+    dem_geoid: Command
+    geodiff: Command
+    mroctx2isis: Command
+    spiceinit: Command
+    spicefit: Command
+    cubreduce: Command
+    ctxcal: Command
+    ctxevenodd: Command
+    hillshade: Command
+    mapproject: Command
+    ipfind: Command
+    ipmatch: Command
+    gdaltranslate: Command
+    ba: Command
 
-    defaults_ps_s1 = {
-        '--processes': _processes,
-        '--threads-singleprocess': _threads_singleprocess,
-        '--threads-multiprocess': _threads_multiprocess,
-        '--entry-point': 1,
-        '--stop-point': 2,
-        '--bundle-adjust-prefix': 'adjust/ba'
-    }
-
-    defaults_ps_s2 = {
-        '--processes': _processes,
-        '--threads-singleprocess': _threads_singleprocess,
-        '--threads-multiprocess': _threads_multiprocess,
-        '--entry-point': 2,
-        '--stop-point': 3,
-        '--bundle-adjust-prefix': 'adjust/ba'
-    }
-
-    defaults_ps_s3 = {
-        '--processes': _processes,
-        '--threads-singleprocess': _threads_singleprocess,
-        '--threads-multiprocess': _threads_multiprocess,
-        '--entry-point': 3,
-        '--stop-point': 4,
-        '--bundle-adjust-prefix': 'adjust/ba'
-    }
-
-    defaults_ps_s4 = {
-        '--processes': _processes,
-        '--threads-singleprocess': _threads_singleprocess,
-        '--threads-multiprocess': _threads_multiprocess,
-        '--entry-point': 4,
-        '--stop-point': 5,
-        '--bundle-adjust-prefix': 'adjust/ba'
-    }
-
-    defaults_ps_s5 = {
-        '--processes': _threads_singleprocess,  # use more cores for triangulation!
-        '--threads-singleprocess': _threads_singleprocess,
-        '--threads-multiprocess': _threads_multiprocess,
-        '--entry-point': 5,
-        '--bundle-adjust-prefix': 'adjust/ba'
-    }
-
-    # defaults for first 5 (0-4 inclusive) steps parallel stereo
-    defaults_ps1 = {
-        '--processes': _processes,
-        '--threads-singleprocess': _threads_singleprocess,
-        '--threads-multiprocess': _threads_multiprocess,
-        '--stop-point': 5,
-        '--bundle-adjust-prefix': 'adjust/ba'
-    }
-
-    # defaults for first last step parallel stereo (triangulation)
-    defaults_ps2 = {
-        '--processes': _threads_singleprocess,  # use more cores for triangulation!
-        '--threads-singleprocess': _threads_singleprocess,
-        '--threads-multiprocess': _threads_multiprocess,
-        '--entry-point': 5,
-        '--bundle-adjust-prefix': 'adjust/ba'
-    }
+    # defaults_ps_s0 = {
+    #     '--processes': _processes,
+    #     '--threads-singleprocess': _threads_singleprocess,
+    #     '--threads-multiprocess': _threads_multiprocess,
+    #     '--entry-point': 0,
+    #     '--stop-point': 1,
+    #     '--bundle-adjust-prefix': 'adjust/ba'
+    # }
+    #
+    # defaults_ps_s1 = {
+    #     '--processes': _processes,
+    #     '--threads-singleprocess': _threads_singleprocess,
+    #     '--threads-multiprocess': _threads_multiprocess,
+    #     '--entry-point': 1,
+    #     '--stop-point': 2,
+    #     '--bundle-adjust-prefix': 'adjust/ba'
+    # }
+    #
+    # defaults_ps_s2 = {
+    #     '--processes': _processes,
+    #     '--threads-singleprocess': _threads_singleprocess,
+    #     '--threads-multiprocess': _threads_multiprocess,
+    #     '--entry-point': 2,
+    #     '--stop-point': 3,
+    #     '--bundle-adjust-prefix': 'adjust/ba'
+    # }
+    #
+    # defaults_ps_s3 = {
+    #     '--processes': _processes,
+    #     '--threads-singleprocess': _threads_singleprocess,
+    #     '--threads-multiprocess': _threads_multiprocess,
+    #     '--entry-point': 3,
+    #     '--stop-point': 4,
+    #     '--bundle-adjust-prefix': 'adjust/ba'
+    # }
+    #
+    # defaults_ps_s4 = {
+    #     '--processes': _processes,
+    #     '--threads-singleprocess': _threads_singleprocess,
+    #     '--threads-multiprocess': _threads_multiprocess,
+    #     '--entry-point': 4,
+    #     '--stop-point': 5,
+    #     '--bundle-adjust-prefix': 'adjust/ba'
+    # }
+    #
+    # defaults_ps_s5 = {
+    #     '--processes': _threads_singleprocess,  # use more cores for triangulation!
+    #     '--threads-singleprocess': _threads_singleprocess,
+    #     '--threads-multiprocess': _threads_multiprocess,
+    #     '--entry-point': 5,
+    #     '--bundle-adjust-prefix': 'adjust/ba'
+    # }
+    #
+    # # defaults for first 5 (0-4 inclusive) steps parallel stereo
+    # defaults_ps1 = {
+    #     '--processes': _processes,
+    #     '--threads-singleprocess': _threads_singleprocess,
+    #     '--threads-multiprocess': _threads_multiprocess,
+    #     '--stop-point': 5,
+    #     '--bundle-adjust-prefix': 'adjust/ba'
+    # }
+    #
+    # # defaults for first last step parallel stereo (triangulation)
+    # defaults_ps2 = {
+    #     '--processes': _threads_singleprocess,  # use more cores for triangulation!
+    #     '--threads-singleprocess': _threads_singleprocess,
+    #     '--threads-multiprocess': _threads_multiprocess,
+    #     '--entry-point': 5,
+    #     '--bundle-adjust-prefix': 'adjust/ba'
+    # }
 
     # default eqc Iau projections, eventually replace with proj4 lookups
     projections = {
@@ -120,19 +172,21 @@ class CommonSteps(object):
     }
 
     def __init__(self):
-        self.parallel_stereo = Command('parallel_stereo').bake(_out=sys.stdout,
-                                                               _err=sys.stderr,
-                                                               _log_msg=custom_log)
+        _args = {
+            '_out': sys.stdout,
+            '_err':sys.stderr,
+            '_log_msg': custom_log
+        }
+        self.parallel_stereo = Command('parallel_stereo').bake(**_args)
         self.point2dem = Command('point2dem').bake('--threads', _threads_singleprocess,
-                                                   _out=sys.stdout, _err=sys.stderr,
-                                                   _log_msg=custom_log)
+                                                   **_args)
         self.pc_align = Command('pc_align').bake('--save-inv-transform', _out=sys.stdout,
                                                  _err=sys.stderr, _log_msg=custom_log)
         self.dem_geoid = Command('dem_geoid').bake(_out=sys.stdout, _err=sys.stderr,
                                                    _log_msg=custom_log)
         self.geodiff = Command('geodiff').bake('--float', _out=sys.stdout, _err=sys.stderr,
                                                _tee=True, _log_msg=custom_log)
-        self.mroctx2isis = Command('mroctx2isis').bake(_out=sys.stdout, _err=sys.stderr,
+        self.mroctx2isis = Command('mroctx2isis').bake(_out=sys.stdout, _err=sys.stdout,
                                                        _log_msg=custom_log)
         self.spiceinit = Command('spiceinit').bake(_out=sys.stdout, _err=sys.stderr,
                                                    _log_msg=custom_log)
@@ -166,7 +220,7 @@ class CommonSteps(object):
         )
 
     @staticmethod
-    def gen_csm(*cubs, meta_kernal=None, max_workers=_threads_singleprocess):
+    def gen_csm(self, *cubs, meta_kernal=None, max_workers=_threads_singleprocess):
         """
         Given N cub files, generate json camera models for each using ale
         """

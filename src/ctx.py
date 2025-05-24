@@ -33,7 +33,7 @@ class CTX(object):
     █████████████████████████████████████████████████████████████
     """
 
-    def __init__(self, https=False, datum="D_MARS", proj: Optional[str] = None):
+    def __init__(self, https=True, datum="D_MARS", proj: Optional[str] = None):
         self.cs = CommonSteps()
         self.https = https
         self.datum = datum
@@ -54,7 +54,6 @@ class CTX(object):
         return float(ODE(self.https).get_ctx_meta_by_key(pid, 'Emission_angle'))
 
     def get_ctx_order(self, one, two):
-        print('Calculating emission angles with provided PIDs...')
         em_one = self.get_ctx_emission_angle(one)
         em_two = self.get_ctx_emission_angle(two)
         if em_one <= em_two:
@@ -131,8 +130,8 @@ class CTX(object):
         with cd(cwd):
             self.generate_ctx_pair_list(one, two)
             # download files
-            ODE(self.https).ctx_edr(one)
-            ODE(self.https).ctx_edr(two)
+            ODE(self.https).download_ctx_edr(one)
+            ODE(self.https).download_ctx_edr(two)
 
     @rich_logger
     def step_2(self, with_web=False):
