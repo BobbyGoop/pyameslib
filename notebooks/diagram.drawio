@@ -10,13 +10,13 @@
         <mxCell id="fcDv7DUjyoOsWU81vF-5-36" value="" style="rounded=1;whiteSpace=wrap;html=1;arcSize=4;dashed=1;dashPattern=8 8;fontFamily=Arial;" vertex="1" parent="1">
           <mxGeometry x="20" y="-40" width="660" height="410" as="geometry" />
         </mxCell>
-        <mxCell id="2" value="1. Загрузка изображений&lt;br&gt;Скачивание левого и правого изображений CTX с сервера ODE посредством REST API." style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
+        <mxCell id="2" value="1. Загрузка изображений&lt;br&gt;Скачивание левого и правого изображений CTX с сервера ODE посредством REST API" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
           <mxGeometry x="80" y="40" width="260" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="3" value="2. Предварительная обработка изображений&lt;br&gt;Преобразование в нужный формат, калибровка и др. средствами ISIS." style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
+        <mxCell id="3" value="2. Предварительная обработка изображений&lt;br&gt;Преобразование в нужный формат, калибровка и др. средствами ISIS" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
           <mxGeometry x="80" y="120" width="260" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="4" value="3. Инициализация метаданных&lt;br&gt;Создание файлов метаданных и копирование .cub файлов для стереоанализа." style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
+        <mxCell id="4" value="3. Инициализация метаданных&lt;br&gt;Создание файлов метаданных и копирование .cub файлов для стереоанализа" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
           <mxGeometry x="80" y="200" width="260" height="60" as="geometry" />
         </mxCell>
         <mxCell id="5" value="4. Уточнение положения камеры и спутника для улучшения результата" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
@@ -36,7 +36,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="9" value="6. Создание DEM высокого разрешения с учетом картографическое проекции изображений&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
+        <mxCell id="9" value="6. Создание DEM высокого разрешения с учетом картографической проекции изображений&amp;nbsp;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
           <mxGeometry x="380" y="120" width="260" height="60" as="geometry" />
         </mxCell>
         <mxCell id="11" value="7. Скачивание данных из PEDR для правильной геопривязки" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" parent="1" vertex="1">
@@ -96,9 +96,6 @@
         </mxCell>
         <mxCell id="fcDv7DUjyoOsWU81vF-5-31" value="Получение карты рассогласования" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#005AAA;fontFamily=Arial;" vertex="1" parent="1">
           <mxGeometry x="790" y="120" width="260" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="fcDv7DUjyoOsWU81vF-5-37" value="Text" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;" vertex="1" parent="1">
-          <mxGeometry x="280" y="200" width="60" height="30" as="geometry" />
         </mxCell>
         <mxCell id="fcDv7DUjyoOsWU81vF-5-38" value="Предварительная обработка" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;" vertex="1" parent="1">
           <mxGeometry x="265" y="-20" width="170" height="30" as="geometry" />
