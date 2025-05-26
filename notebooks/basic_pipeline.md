@@ -51,3 +51,55 @@ parallel_stereo --stereo-algorithm asp_mgm \
  --stop-point 2 \
  P02_001981_1823.map.cub P03_002258_1817.map.cub results/out
 ```
+
+```shell
+parallel_stereo \
+  --stereo-algorithm asp_mgm \
+  --subpixel-mode 2  \
+  --corr-memory-limit-mb 16384 \
+  --processes 4  \
+  --threads-multiprocess 8 \
+  N12_067124_0910.map.cub  N13_067270_0910.map.cub results/out
+```
+
+```shell
+parallel_stereo                     \
+  --alignment-method local_epipolar \
+  --stereo-algorithm libelas        \
+  --job-size-h 512 --job-size-w 512 \
+  --sgm-collar-size 128             \
+  --corr-memory-limit-mb 16384 \
+  --processes 4  \
+  --threads-multiprocess 8 \
+  --entry-point 1 \
+  --stop-point 2 \
+  N12_067124_0910.map.cub  N13_067270_0910.map.cub results/out
+```
+
+```shell
+parallel_stereo                     \
+  --alignment-method local_epipolar \
+  --stereo-algorithm libelas        \
+  --job-size-h 512 --job-size-w 512 \
+  --sgm-collar-size 128             \
+  --corr-memory-limit-mb 16384 \
+  --processes 4  \
+  --threads-multiprocess 8 \
+  --entry-point 1 \
+  --stop-point 2 \
+  G03_019456_1646.map.cub G04_019601_1646.map.cub results/out
+```
+
+
+
+
+```shell
+point2dem -r mars --stereographic --auto-proj-center results/out-PC.tif
+```
+
+```shell
+point2mesh --center \
+  --point-cloud-step-size 1 \
+  --texture-step-size 1 \
+  results/out-PC.tif results/out-L.tif
+```
