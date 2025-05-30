@@ -3,8 +3,8 @@ from importlib.resources import as_file, files
 from pathlib import Path
 from typing import Optional
 
-from src.asp_wrapper import CommonSteps
-from src.utils.common import rich_logger, par_do, cd
+from src.asp_wrapper import AmesPipelineWrapper
+from src.utils.common import rich_logger, run_parallel, cd
 
 logging.basicConfig(level=logging.INFO)
 
@@ -34,7 +34,7 @@ class CTX(object):
     """
 
     def __init__(self, https=True, datum="D_MARS", proj: Optional[str] = None):
-        self.cs = CommonSteps()
+        self.cs = AmesPipelineWrapper()
         self.https = https
         self.datum = datum
         # if proj is not none, get the corresponding proj or else override with proj,
@@ -46,16 +46,18 @@ class CTX(object):
         refdem = Path.cwd() / both / run / 'dem' / f'{both}_ba_100_0-DEM.tif'
         return str(refdem)
 
-    def get_full_ctx_id(self, pid):
-        res = str(ODE(self.https).get_ctx_meta_by_key(pid, 'ProductURL'))
+    @classmethod
+    def get_full_ctx_id(cls, pid):
+        res = str(ODE().get_ctx_meta_by_key(pid, 'ProductURL'))
         return res.split('=')[1].split('&')[0]
 
-    def get_ctx_emission_angle(self, pid):
-        return float(ODE(self.https).get_ctx_meta_by_key(pid, 'Emission_angle'))
+    # def get_ctx_emission_angle(self, pid):
+    #     return float(ODE(self.https).get_ctx_meta_by_key(pid, 'Emission_angle'))
 
-    def get_ctx_order(self, one, two):
-        em_one = self.get_ctx_emission_angle(one)
-        em_two = self.get_ctx_emission_angle(two)
+    @classmethod
+    def get_ctx_order(cls, one, two):
+        em_one = ODE().get_ctx_meta_by_key(one, 'Emission_angle')
+        em_two = ODE().get_ctx_meta_by_key(two, 'Emission_angle')
         if em_one <= em_two:
             return one, two
         else:
@@ -141,16 +143,16 @@ class CTX(object):
         :param with_web: if true attempt to use webservices for SPICE kernel data
         """
         imgs = [*Path.cwd().glob('*.IMG'), *Path.cwd().glob('*.img')]
-        par_do(self.cs.mroctx2isis, [f'from={i.name} to={i.stem}.cub' for i in imgs])
+        run_parallel(self.cs.mroctx2isis, [f'from={i.name} to={i.stem}.cub' for i in imgs])
         cubs = list(Path.cwd().glob('*.cub'))
-        par_do(self.cs.spiceinit,
-               [f'from={c.name}{" web=yes" if with_web else ""}' for c in cubs])
-        par_do(self.cs.spicefit, [f'from={c.name}' for c in cubs])
-        par_do(self.cs.ctxcal, [f'from={c.name} to={c.stem}.lev1.cub' for c in cubs])
+        run_parallel(self.cs.spiceinit,
+                     [f'from={c.name}{" web=yes" if with_web else ""}' for c in cubs])
+        run_parallel(self.cs.spicefit, [f'from={c.name}' for c in cubs])
+        run_parallel(self.cs.ctxcal, [f'from={c.name} to={c.stem}.lev1.cub' for c in cubs])
         for cub in cubs:
             cub.unlink()
         lev1cubs = list(Path.cwd().glob('*.lev1.cub'))
-        par_do(self.cs.ctxevenodd, [f'from={c.name} to={c.stem}eo.cub' for c in lev1cubs])
+        run_parallel(self.cs.ctxevenodd, [f'from={c.name} to={c.stem}eo.cub' for c in lev1cubs])
         for lc in lev1cubs:
             lc.unlink()
 
@@ -195,7 +197,7 @@ class CTX(object):
         :param postfix: postfix for cub files to use
         :param camera_postfix: postfix for cameras  # TODO: use .adjusted_state.json?
         """
-        return self.cs.stereo_asap(stereo_conf, postfix=postfix, camera_postfix=camera_postfix,
+        return self.cs.stereo_asap(stereo_conf, cub_postfix=postfix, cam_postfix=camera_postfix,
                                    posargs=posargs, **{**self.cs.defaults_ps1, **kwargs})
 
     @rich_logger
@@ -209,7 +211,7 @@ class CTX(object):
         :param postfix: postfix for cub files to use
         :param camera_postfix: postfix for cameras  # TODO: use .adjusted_state.json?
         """
-        return self.cs.stereo_asap(stereo_conf, postfix=postfix, camera_postfix=camera_postfix,
+        return self.cs.stereo_asap(stereo_conf, cub_postfix=postfix, cam_postfix=camera_postfix,
                                    posargs=posargs, **{**self.cs.defaults_ps2, **kwargs})
 
     @rich_logger
@@ -290,8 +292,8 @@ class CTX(object):
         :param kwargs:
         """
         refdem = str(Path(self.get_first_pass_refdem() if not refdem else refdem).absolute())
-        return self.cs.stereo_asap(stereo_conf=stereo_conf, refdem=refdem, postfix=postfix,
-                                   camera_postfix=camera_postfix, run='results_map_ba',
+        return self.cs.stereo_asap(stereo_conf=stereo_conf, refdem=refdem, cub_postfix=postfix,
+                                   cam_postfix=camera_postfix, run='results_map_ba',
                                    posargs=posargs, **{**self.cs.defaults_ps1, **kwargs})
 
     @rich_logger
@@ -308,8 +310,8 @@ class CTX(object):
         :param kwargs:
         """
         refdem = str(Path(self.get_first_pass_refdem() if not refdem else refdem).absolute())
-        return self.cs.stereo_asap(stereo_conf=stereo_conf, refdem=refdem, postfix=postfix,
-                                   camera_postfix=camera_postfix, run='results_map_ba',
+        return self.cs.stereo_asap(stereo_conf=stereo_conf, refdem=refdem, cub_postfix=postfix,
+                                   cam_postfix=camera_postfix, run='results_map_ba',
                                    posargs=posargs, **{**self.cs.defaults_ps2, **kwargs})
 
     @rich_logger

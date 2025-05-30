@@ -297,8 +297,8 @@ class HiRISE(object):
         :param postfix: postfix for cub files to use
         :param camera_postfix: postfix for cameras to use
         """
-        return self.cs.stereo_asap(stereo_conf, run=run, postfix=postfix,
-                                   camera_postfix=camera_postfix, posargs=posargs,
+        return self.cs.stereo_asap(stereo_conf, run=run, cub_postfix=postfix,
+                                   cam_postfix=camera_postfix, posargs=posargs,
                                    **{**self.cs.defaults_ps1, **kwargs})
 
     @rich_logger
@@ -313,8 +313,8 @@ class HiRISE(object):
         :param postfix: postfix for cub files to use
         :param camera_postfix: postfix for cameras to use
         """
-        return self.cs.stereo_asap(stereo_conf, run=run, postfix=postfix,
-                                   camera_postfix=camera_postfix, posargs=posargs,
+        return self.cs.stereo_asap(stereo_conf, run=run, cub_postfix=postfix,
+                                   cam_postfix=camera_postfix, posargs=posargs,
                                    **{**self.cs.defaults_ps2, **kwargs})
 
     @rich_logger

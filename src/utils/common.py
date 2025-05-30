@@ -122,11 +122,12 @@ def clean_kwargs(kwargs: Dict) -> Dict:
     return cleaned
 
 
-def kwargs_to_args(kwargs: Dict) -> List:
+def convert_kwargs(kwargs: Dict) -> List:
     keys = []
     # ensure keys start with '--' for asp scripts
     for key in kwargs.keys():
-        key = str(key)
+        if not isinstance(key, str):
+            raise ValueError('Shell command must be string, starting with `-` or `--`')
         if key not in ("--t_srs", "--t_projwin"):
             key = key.replace("_", "-")
         if not key.startswith("--") and len(key) > 1:
@@ -135,22 +136,24 @@ def kwargs_to_args(kwargs: Dict) -> List:
             keys.append(f"-{key}")
         else:
             keys.append(key)
+
+    # Also convert key values to string
     return [
         x
         for x in itertools.chain.from_iterable(
-            itertools.zip_longest(keys, kwargs.values())
+            itertools.zip_longest(keys, map(str, kwargs.values()))
         )
         if x is not None
     ]
 
 
-def kwarg_parse(kwargs: Dict, key: str) -> str:
+def parse_kwargs(kwargs: Dict, key: str) -> str:
     if kwargs is None:
         return ""
     key_args = kwargs.get(key, {})
     if isinstance(key_args, str):
         return key_args
-    return " ".join(map(str, kwargs_to_args(clean_kwargs(key_args))))
+    return " ".join(map(str, convert_kwargs(clean_kwargs(key_args))))
 
 
 def get_affine_from_file(file):
@@ -208,7 +211,7 @@ def rich_logger(func: Callable):
     return wrapper
 
 
-def par_do(func, all_calls_args):
+def run_parallel(func, all_calls_args):
     """
     Parallel execution helper function for sh.py Commands
 

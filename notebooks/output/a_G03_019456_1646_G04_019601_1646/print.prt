@@ -1,0 +1,778 @@
+Object = mroctx2isis
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2016-06-10
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:09:50
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Import an MRO CTX image as an Isis cube"
+
+  Group = UserParameters
+    FROM    = G03_019456_1646_XN_15S096W.IMG
+    TO      = G03_019456_1646.cub
+    SUFFIX  = 18
+    FILLGAP = true
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:02.3
+    CpuTime     = 00:00:01.6
+  End_Group
+End_Object
+
+
+Object = mroctx2isis
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2016-06-10
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:10:16
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Import an MRO CTX image as an Isis cube"
+
+  Group = UserParameters
+    FROM    = G04_019601_1646_XN_15S096W.IMG
+    TO      = G04_019601_1646.cub
+    SUFFIX  = 18
+    FILLGAP = true
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:02.3
+    CpuTime     = 00:00:02.2
+  End_Group
+End_Object
+
+
+Object = spiceinit
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2021-08-10
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:10:37
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Update SPICE data (kernels, pointing, and position) for
+                       a camera cube"
+
+  Group = UserParameters
+    FROM         = G03_019456_1646.cub
+    WEB          = true
+    ATTACH       = TRUE
+    CKSMITHED    = FALSE
+    CKRECON      = TRUE
+    CKPREDICTED  = FALSE
+    CKNADIR      = FALSE
+    SPKSMITHED   = FALSE
+    SPKRECON     = TRUE
+    SPKPREDICTED = FALSE
+    SHAPE        = SYSTEM
+    STARTPAD     = 0.0
+    ENDPAD       = 0.0
+    URL          = https://astrogeology.usgs.gov/apis/ale/v0.9.1/spiceserver/
+    PORT         = 443
+  End_Group
+
+  Group = Kernels
+    NaifFrameCode             = -74021
+    LeapSecond                = $base/kernels/lsk/naif0012.tls
+    TargetAttitudeShape       = $mro/kernels/pck/pck00008.tpc
+    TargetPosition            = (Table, $base/kernels/spk/de430.bsp,
+                                 $base/kernels/spk/mar097.bsp)
+    InstrumentPointing        = (Table,
+                                 $mro/kernels/ck/mro_sc_psp_100914_100920.bc,
+                                 $mro/kernels/fk/mro_v16.tf)
+    Instrument                = Null
+    SpacecraftClock           = $mro/kernels/sclk/MRO_SCLKSCET.00113.65536.tsc
+    InstrumentPosition        = (Table,
+                                 $mro/kernels/spk/mro_psp16_ssd_mro110c.bsp)
+    InstrumentAddendum        = $mro/kernels/iak/mroctxAddendum005.ti
+    ShapeModel                = $base/dems/molaMarsPlanetaryRadius0005.cub
+    InstrumentPositionQuality = Reconstructed
+    InstrumentPointingQuality = Reconstructed
+    CameraVersion             = 1
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:06.9
+    CpuTime     = 00:00:08.0
+  End_Group
+End_Object
+
+
+Object = spiceinit
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2021-08-10
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:10:58
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Update SPICE data (kernels, pointing, and position) for
+                       a camera cube"
+
+  Group = UserParameters
+    FROM         = G04_019601_1646.cub
+    WEB          = true
+    ATTACH       = TRUE
+    CKSMITHED    = FALSE
+    CKRECON      = TRUE
+    CKPREDICTED  = FALSE
+    CKNADIR      = FALSE
+    SPKSMITHED   = FALSE
+    SPKRECON     = TRUE
+    SPKPREDICTED = FALSE
+    SHAPE        = SYSTEM
+    STARTPAD     = 0.0
+    ENDPAD       = 0.0
+    URL          = https://astrogeology.usgs.gov/apis/ale/v0.9.1/spiceserver/
+    PORT         = 443
+  End_Group
+
+  Group = Kernels
+    NaifFrameCode             = -74021
+    LeapSecond                = $base/kernels/lsk/naif0012.tls
+    TargetAttitudeShape       = $mro/kernels/pck/pck00008.tpc
+    TargetPosition            = (Table, $base/kernels/spk/de430.bsp,
+                                 $base/kernels/spk/mar097.bsp)
+    InstrumentPointing        = (Table,
+                                 $mro/kernels/ck/mro_sc_psp_100928_101004.bc,
+                                 $mro/kernels/fk/mro_v16.tf)
+    Instrument                = Null
+    SpacecraftClock           = $mro/kernels/sclk/MRO_SCLKSCET.00113.65536.tsc
+    InstrumentPosition        = (Table,
+                                 $mro/kernels/spk/mro_psp17_ssd_mro110c.bsp)
+    InstrumentAddendum        = $mro/kernels/iak/mroctxAddendum005.ti
+    ShapeModel                = $base/dems/molaMarsPlanetaryRadius0005.cub
+    InstrumentPositionQuality = Reconstructed
+    InstrumentPointingQuality = Reconstructed
+    CameraVersion             = 1
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:06.2
+    CpuTime     = 00:00:07.2
+  End_Group
+End_Object
+
+
+Object = ctxcal
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2023-11-15
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:11:38
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Radiometrically calibrates a CTX image"
+
+  Group = UserParameters
+    FROM        = G03_019456_1646.cub
+    TO          = G03_019456_1646.cal.cub
+    MONTHLYFLAT = No
+    IOF         = True
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.1
+    CpuTime     = 00:00:01.2
+  End_Group
+End_Object
+
+
+Object = ctxcal
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2023-11-15
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:12:30
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Radiometrically calibrates a CTX image"
+
+  Group = UserParameters
+    FROM        = G04_019601_1646.cub
+    TO          = G04_019601_1646.cal.cub
+    MONTHLYFLAT = No
+    IOF         = True
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.1
+    CpuTime     = 00:00:00.6
+  End_Group
+End_Object
+
+
+Object = camrange
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2012-10-11
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:02
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Compute the lat/lon range of a camera image"
+
+  Group = UserParameters
+    FROM = G03_019456_1646.cal.cub
+    TO   = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/ou-
+           tput/a_G03_019456_1646_G04_019601_1646/camrangew10z5vx_.txt
+  End_Group
+
+  Group = Target
+    From       = G03_019456_1646.cal.cub
+    TargetName = Mars
+    RadiusA    = 3396190.0 <meters>
+    RadiusB    = 3396190.0 <meters>
+    RadiusC    = 3376200.0 <meters>
+  End_Group
+
+  Group = PixelResolution
+    Lowest  = 5.0279572821408 <meters>
+    Highest = 4.983433362965 <meters>
+  End_Group
+
+  Group = UniversalGroundRange
+    LatitudeType       = Planetocentric
+    LongitudeDirection = PositiveEast
+    LongitudeDomain    = 360
+    MinimumLatitude    = -15.711103411606
+    MaximumLatitude    = -14.937133916735
+    MinimumLongitude   = 263.58993889698
+    MaximumLongitude   = 264.11604978124
+  End_Group
+
+  Group = LatitudeRange
+    LatitudeType    = Planetographic
+    MinimumLatitude = -15.888331689157
+    MaximumLatitude = -15.106475003172
+  End_Group
+
+  Group = PositiveWest360
+    LongitudeDirection = PositiveWest
+    LongitudeDomain    = 360
+    MinimumLongitude   = 95.883950218764
+    MaximumLongitude   = 96.410061103017
+  End_Group
+
+  Group = PositiveEast180
+    LongitudeDirection = PositiveEast
+    LongitudeDomain    = 180
+    MinimumLongitude   = -96.410061103017
+    MaximumLongitude   = -95.883950218764
+  End_Group
+
+  Group = PositiveWest180
+    LongitudeDirection = PositiveWest
+    LongitudeDomain    = 180
+    MinimumLongitude   = 95.883950218764
+    MaximumLongitude   = 96.410061103017
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.3
+    CpuTime     = 00:00:02.4
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:04
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangew10z5vx_.-
+                txt
+    GRPNAME   = PixelResolution
+    KEYWORD   = Lowest
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From   = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/-
+             output/a_G03_019456_1646_G04_019601_1646/camrangew10z5vx_.txt
+    Lowest = 5.0279572821408
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.2
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:04
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangew10z5vx_.-
+                txt
+    GRPNAME   = UniversalGroundRange
+    KEYWORD   = MinimumLatitude
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From            = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/n-
+                      otebooks/output/a_G03_019456_1646_G04_019601_1646/camra-
+                      ngew10z5vx_.txt
+    MinimumLatitude = -15.711103411606
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.2
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:04
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangew10z5vx_.-
+                txt
+    GRPNAME   = UniversalGroundRange
+    KEYWORD   = MaximumLatitude
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From            = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/n-
+                      otebooks/output/a_G03_019456_1646_G04_019601_1646/camra-
+                      ngew10z5vx_.txt
+    MaximumLatitude = -14.937133916735
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.0
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:04
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangew10z5vx_.-
+                txt
+    GRPNAME   = UniversalGroundRange
+    KEYWORD   = MinimumLongitude
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From             = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/-
+                       notebooks/output/a_G03_019456_1646_G04_019601_1646/cam-
+                       rangew10z5vx_.txt
+    MinimumLongitude = 263.58993889698
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.0
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:04
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangew10z5vx_.-
+                txt
+    GRPNAME   = UniversalGroundRange
+    KEYWORD   = MaximumLongitude
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From             = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/-
+                       notebooks/output/a_G03_019456_1646_G04_019601_1646/cam-
+                       rangew10z5vx_.txt
+    MaximumLongitude = 264.11604978124
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.1
+  End_Group
+End_Object
+
+
+Object = camrange
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2012-10-11
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:04
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Compute the lat/lon range of a camera image"
+
+  Group = UserParameters
+    FROM = G04_019601_1646.cal.cub
+    TO   = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/ou-
+           tput/a_G03_019456_1646_G04_019601_1646/camrangerar_y5ly.txt
+  End_Group
+
+  Group = Target
+    From       = G04_019601_1646.cal.cub
+    TargetName = Mars
+    RadiusA    = 3396190.0 <meters>
+    RadiusB    = 3396190.0 <meters>
+    RadiusC    = 3376200.0 <meters>
+  End_Group
+
+  Group = PixelResolution
+    Lowest  = 5.2107677969115 <meters>
+    Highest = 5.076462932952 <meters>
+  End_Group
+
+  Group = UniversalGroundRange
+    LatitudeType       = Planetocentric
+    LongitudeDirection = PositiveEast
+    LongitudeDomain    = 360
+    MinimumLatitude    = -15.718501406737
+    MaximumLatitude    = -14.944343706765
+    MinimumLongitude   = 263.58535177845
+    MaximumLongitude   = 264.13068251281
+  End_Group
+
+  Group = LatitudeRange
+    LatitudeType    = Planetographic
+    MinimumLatitude = -15.89580444966
+    MaximumLatitude = -15.113758853298
+  End_Group
+
+  Group = PositiveWest360
+    LongitudeDirection = PositiveWest
+    LongitudeDomain    = 360
+    MinimumLongitude   = 95.869317487191
+    MaximumLongitude   = 96.414648221549
+  End_Group
+
+  Group = PositiveEast180
+    LongitudeDirection = PositiveEast
+    LongitudeDomain    = 180
+    MinimumLongitude   = -96.414648221549
+    MaximumLongitude   = -95.869317487191
+  End_Group
+
+  Group = PositiveWest180
+    LongitudeDirection = PositiveWest
+    LongitudeDomain    = 180
+    MinimumLongitude   = 95.869317487191
+    MaximumLongitude   = 96.414648221549
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.3
+    CpuTime     = 00:00:02.0
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:06
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangerar_y5ly.-
+                txt
+    GRPNAME   = PixelResolution
+    KEYWORD   = Lowest
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From   = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/-
+             output/a_G03_019456_1646_G04_019601_1646/camrangerar_y5ly.txt
+    Lowest = 5.2107677969115
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.2
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:06
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangerar_y5ly.-
+                txt
+    GRPNAME   = UniversalGroundRange
+    KEYWORD   = MinimumLatitude
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From            = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/n-
+                      otebooks/output/a_G03_019456_1646_G04_019601_1646/camra-
+                      ngerar_y5ly.txt
+    MinimumLatitude = -15.718501406737
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.0
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:06
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangerar_y5ly.-
+                txt
+    GRPNAME   = UniversalGroundRange
+    KEYWORD   = MaximumLatitude
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From            = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/n-
+                      otebooks/output/a_G03_019456_1646_G04_019601_1646/camra-
+                      ngerar_y5ly.txt
+    MaximumLatitude = -14.944343706765
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.0
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:06
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangerar_y5ly.-
+                txt
+    GRPNAME   = UniversalGroundRange
+    KEYWORD   = MinimumLongitude
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From             = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/-
+                       notebooks/output/a_G03_019456_1646_G04_019601_1646/cam-
+                       rangerar_y5ly.txt
+    MinimumLongitude = 263.58535177845
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.3
+  End_Group
+End_Object
+
+
+Object = getkey
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2022-11-23
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:06
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs the value of a requested keyword"
+
+  Group = UserParameters
+    FROM      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteboo-
+                ks/output/a_G03_019456_1646_G04_019601_1646/camrangerar_y5ly.-
+                txt
+    GRPNAME   = UniversalGroundRange
+    KEYWORD   = MaximumLongitude
+    UPPER     = False
+    RECURSIVE = False
+  End_Group
+
+  Group = Results
+    From             = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/-
+                       notebooks/output/a_G03_019456_1646_G04_019601_1646/cam-
+                       rangerar_y5ly.txt
+    MaximumLongitude = 264.13068251281
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.0
+    CpuTime     = 00:00:00.3
+  End_Group
+End_Object
+
+
+Object = cam2map
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2020-03-02
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:13:06
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Convert camera image to a map projection"
+
+  Group = UserParameters
+    FROM          = G03_019456_1646.cal.cub
+    MAP           = $ISISROOT/appdata/templates/maps/sinusoidal.map
+    TO            = G03_019456_1646.map.cub
+    MATCHMAP      = false
+    PIXRES        = MPP
+    RESOLUTION    = 5.2107677969115
+    DEFAULTRANGE  = MAP
+    MINLAT        = -15.718501406737
+    MAXLAT        = -14.937133916735
+    MINLON        = 263.58993889698
+    MAXLON        = 264.11604978124
+    TRIM          = FALSE
+    INTERP        = CUBICCONVOLUTION
+    WARPALGORITHM = AUTOMATIC
+  End_Group
+
+  Group = Mapping
+    TargetName         = Mars
+    ProjectionName     = Sinusoidal
+    EquatorialRadius   = 3396190.0 <meters>
+    PolarRadius        = 3376200.0 <meters>
+    LatitudeType       = Planetocentric
+    LongitudeDirection = PositiveEast
+    LongitudeDomain    = 360
+    PixelResolution    = 5.2107677969115 <meters/pixel>
+    Scale              = 11375.424857434 <pixels/degree>
+    UpperLeftCornerX   = -15069.540468668 <meters>
+    UpperLeftCornerY   = -885392.82098001 <meters>
+    MinimumLatitude    = -15.718501406737
+    MaximumLatitude    = -14.937133916735
+    MinimumLongitude   = 263.58993889698
+    MaximumLongitude   = 264.11604978124
+    CenterLongitude    = 263.85299433911
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:02:52.3
+    CpuTime     = 00:01:23.4
+  End_Group
+End_Object
+
+
+Object = cam2map
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2020-03-02
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-05-26T01:16:01
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Convert camera image to a map projection"
+
+  Group = UserParameters
+    FROM          = G04_019601_1646.cal.cub
+    MAP           = $ISISROOT/appdata/templates/maps/sinusoidal.map
+    TO            = G04_019601_1646.map.cub
+    MATCHMAP      = false
+    PIXRES        = MPP
+    RESOLUTION    = 5.2107677969115
+    DEFAULTRANGE  = MAP
+    MINLAT        = -15.718501406737
+    MAXLAT        = -14.937133916735
+    MINLON        = 263.58993889698
+    MAXLON        = 264.11604978124
+    TRIM          = FALSE
+    INTERP        = CUBICCONVOLUTION
+    WARPALGORITHM = AUTOMATIC
+  End_Group
+
+  Group = Mapping
+    TargetName         = Mars
+    ProjectionName     = Sinusoidal
+    EquatorialRadius   = 3396190.0 <meters>
+    PolarRadius        = 3376200.0 <meters>
+    LatitudeType       = Planetocentric
+    LongitudeDirection = PositiveEast
+    LongitudeDomain    = 360
+    PixelResolution    = 5.2107677969115 <meters/pixel>
+    Scale              = 11375.424857434 <pixels/degree>
+    UpperLeftCornerX   = -15069.540468668 <meters>
+    UpperLeftCornerY   = -885392.82098001 <meters>
+    MinimumLatitude    = -15.718501406737
+    MaximumLatitude    = -14.937133916735
+    MinimumLongitude   = 263.58993889698
+    MaximumLongitude   = 264.11604978124
+    CenterLongitude    = 263.85299433911
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:02:58.1
+    CpuTime     = 00:01:27.5
+  End_Group
+End_Object
+
+

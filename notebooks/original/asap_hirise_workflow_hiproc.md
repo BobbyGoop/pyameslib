@@ -70,8 +70,8 @@ $ asap hirise step-4 --postfix {postfix}
 # Stereo Quality Report
 
 ```python
-qual_report = asap.CommonSteps().get_stereo_quality_report(f'{left}_{right}/{left}{postfix}',
-                                                           f'{left}_{right}/{right}{postfix}')
+qual_report = asap.AmesPipelineWrapper().get_stereo_quality_report(f'{left}_{right}/{left}{postfix}',
+                                                                   f'{left}_{right}/{right}{postfix}')
 print(qual_report)
 ```
 
@@ -79,12 +79,12 @@ print(qual_report)
 
 ```python
 if downsample:
-    true_img_gsd_left = asap.CommonSteps().get_image_gsd(f'{left}_{right}/{left}{postfix}')
-    true_img_gsd_right = asap.CommonSteps().get_image_gsd(f'{left}_{right}/{right}{postfix}')
+    true_img_gsd_left = asap.AmesPipelineWrapper().get_image_gsd(f'{left}_{right}/{left}{postfix}')
+    true_img_gsd_right = asap.AmesPipelineWrapper().get_image_gsd(f'{left}_{right}/{right}{postfix}')
     # take conservative approach, pick worst image GSD
     res_gsd = max(true_img_gsd_left, true_img_gsd_right)
     # this is because rescale in ISIS does not update GSD in metadata
-    asap.CommonSteps().rescale_and_overwrite(factor=downsample, postfix=postfix)
+    asap.AmesPipelineWrapper().rescale_and_overwrite(factor=downsample, postfix=postfix)
     img_gsd = math.ceil(res_gsd) * downsample
     dem_gsd = 4 * img_gsd
     print('new img gsd', img_gsd)

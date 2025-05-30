@@ -1,4 +1,5 @@
 import logging
+from collections import namedtuple
 
 from src import moody
 
@@ -20,10 +21,10 @@ import src.moody
 import pvl
 
 from src.utils.common import _processes, _threads_multiprocess, _threads_singleprocess, \
-    custom_log, kwargs_to_args, silent_cd, circ_mean, rich_logger, cd, clean_kwargs, optional
+    custom_log, convert_kwargs, silent_cd, circ_mean, rich_logger, cd, clean_kwargs, optional
 
 
-class CommonSteps(object):
+class AmesPipelineWrapper:
     """
     ASAP Stereo Pipeline - Common Commands
 
@@ -164,6 +165,13 @@ class CommonSteps(object):
     #     '--bundle-adjust-prefix': 'adjust/ba'
     # }
 
+    _stereo_config = {
+        '--stereo-algorithm': 'asp_mgm',
+        '--processes': _processes,
+        '--threads-singleprocess': _threads_singleprocess,
+        '--threads-multiprocess': _threads_multiprocess,
+    }
+
     # default eqc Iau projections, eventually replace with proj4 lookups
     projections = {
         "IAU_Mars": "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=3396190 +b=3396190 +units=m +no_defs",
@@ -171,15 +179,19 @@ class CommonSteps(object):
         "IAU_Mercury": "+proj=eqc +lat_ts=0 +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +a=2439700 +b=2439700 +units=m +no_defs"
     }
 
+    Stereo = namedtuple('Stereo', ['workdir', 'left', 'right'])
+
     def __init__(self):
-        _args = {
-            '_out': sys.stdout,
-            '_err':sys.stderr,
-            '_log_msg': custom_log
-        }
-        self.parallel_stereo = Command('parallel_stereo').bake(**_args)
+        # _args = {
+        #     '_out': sys.stdout,
+        #     '_err': sys.stderr,
+        #     '_log_msg': custom_log
+        # }
+        self.parallel_stereo = Command('parallel_stereo').bake(_out=sys.stdout,
+                                                 _err=sys.stderr, _log_msg=custom_log)
         self.point2dem = Command('point2dem').bake('--threads', _threads_singleprocess,
-                                                   **_args)
+                                                   _out=sys.stdout,
+                                                   _err=sys.stderr, _log_msg=custom_log)
         self.pc_align = Command('pc_align').bake('--save-inv-transform', _out=sys.stdout,
                                                  _err=sys.stderr, _log_msg=custom_log)
         self.dem_geoid = Command('dem_geoid').bake(_out=sys.stdout, _err=sys.stderr,
@@ -208,6 +220,7 @@ class CommonSteps(object):
                                                _log_msg=custom_log)
         self.gdaltranslate = Command('gdal_translate').bake(_out=sys.stdout, _err=sys.stderr,
                                                             _log_msg=custom_log)
+
         # get the help for parallel bundle adjust which changed between 3.x versions
         # pba_help = sh.parallel_bundle_adjust('--help')
         # pk = '--threads'
@@ -219,17 +232,28 @@ class CommonSteps(object):
             _out=sys.stdout, _err=sys.stderr, _log_msg=custom_log
         )
 
-    @staticmethod
-    def gen_csm(self, *cubs, meta_kernal=None, max_workers=_threads_singleprocess):
-        """
-        Given N cub files, generate json camera models for each using ale
-        """
-        args = {}
-        if meta_kernal:
-            args['-k'] = meta_kernal
-        cmd = sh.isd_generate('-v', *kwargs_to_args(args), '--max_workers', max_workers, *cubs,
-                              _out=sys.stdout, _err=sys.stderr, _log_msg=custom_log)
-        return cmd
+        self._isd_generate = Command('isd_generate').bake(_out=sys.stdout, _err=sys.stderr,
+                                                          _log_msg=custom_log)
+
+        self.stereo_pair = None
+
+    # @staticmethod
+    # def gen_csm(self, *cubs, meta_kernal=None, max_workers=_threads_singleprocess):
+    #     """
+    #     Given N cub files, generate json camera models for each using ale
+    #     """
+    #     args = {}
+    #     if meta_kernal:
+    #         args['-k'] = meta_kernal
+    #     cmd = sh.isd_generate('-v', *kwargs_to_args(args), '--max_workers', max_workers, *cubs,
+    #                           _out=sys.stdout, _err=sys.stderr, _log_msg=custom_log)
+    #     return cmd
+
+    def _get_pair(self):
+        return (self.stereo_pair.left, self.stereo_pair.right)
+
+    def setup_pair_info(self, workdir, left, right):
+        self.stereo_pair = self.Stereo(workdir, left, right)
 
     @staticmethod
     def cam_test(cub: str, camera: str, sample_rate: int = 1000, subpixel_offset=0.25) -> str:
@@ -294,7 +318,7 @@ class CommonSteps(object):
         if gdal_options is None:
             gdal_options = ["--config", "GDAL_CACHEMAX", "2000", "-co", "PREDICTOR=2", "-co",
                             "COMPRESS=ZSTD", "-co", "NUM_THREADS=ALL_CPUS", ]
-        band_stats = CommonSteps.get_image_band_stats(img)[
+        band_stats = AmesPipelineWrapper.get_image_band_stats(img)[
             0]  # assumes single band image for now
         # make output name
         out_name = Path(img).stem + '_norm.tif'
@@ -326,7 +350,7 @@ class CommonSteps(object):
             transform = gdal_info["geoTransform"]
             res1, res2 = math.fabs(transform[1]), math.fabs(transform[-1])
         else:
-            cam_info = CommonSteps.get_cam_info(img)
+            cam_info = AmesPipelineWrapper.get_cam_info(img)
             if "PixelResolution" not in cam_info:
                 raise RuntimeError(
                     "Could not find pixel size for input using gdal or camrange. Check if image is valid.")
@@ -356,7 +380,7 @@ class CommonSteps(object):
         except (sh.ErrorReturnCode, RuntimeError) as e:
             warnings.warn(
                 f'No SRS info, falling back to use ISIS caminfo.\n exception was: {e}')
-            out_dict = CommonSteps.get_cam_info(img)
+            out_dict = AmesPipelineWrapper.get_cam_info(img)
             lon = circ_mean(float(out_dict['UniversalGroundRange']['MinimumLongitude']),
                             float(out_dict['UniversalGroundRange']['MaximumLongitude']))
             lat = (float(out_dict['UniversalGroundRange']['MinimumLatitude']) + float(
@@ -366,7 +390,7 @@ class CommonSteps(object):
 
     @staticmethod
     def get_map_info(img, key: str, group='UniversalGroundRange') -> str:
-        out_dict = CommonSteps.get_cam_info(img)
+        out_dict = AmesPipelineWrapper.get_cam_info(img)
         return out_dict[group][key]
 
     @staticmethod
@@ -384,7 +408,7 @@ class CommonSteps(object):
     @staticmethod
     def create_stereodirs_lis():
         with open('./stereodirs.lis', 'w') as out:
-            _, _, left_right = CommonSteps.parse_stereopairs()
+            _, _, left_right = AmesPipelineWrapper.parse_stereopairs()
             out.write(left_right)
 
     @staticmethod
@@ -393,7 +417,7 @@ class CommonSteps(object):
 
     @staticmethod
     def create_stereopair_lis():
-        left, right, left_right = CommonSteps.parse_stereopairs()
+        left, right, left_right = AmesPipelineWrapper.parse_stereopairs()
         with open(f'./{left_right}/stereopair.lis', 'w') as out:
             out.write(f'{left} {right}')
 
@@ -506,7 +530,7 @@ class CommonSteps(object):
         out_name = cub_path.parent.name
         cwd = cub_path.parent
         with cd(cwd):
-            out_dict = CommonSteps.get_cam_info(cub_path)['UniversalGroundRange']
+            out_dict = AmesPipelineWrapper.get_cam_info(cub_path)['UniversalGroundRange']
             minlon, maxlon, minlat, maxlat = out_dict['MinimumLongitude'], out_dict[
                 'MaximumLongitude'], out_dict['MinimumLatitude'], out_dict['MaximumLatitude']
             # use moody to get the pedr in shape file form, we export a csv for what we need to align to
@@ -533,78 +557,187 @@ class CommonSteps(object):
         :param camera_postfix:
         :return:
         """
-        left, right, both = self.parse_stereopairs()
-        with cd(Path.cwd() / both):
-            _left, _right = f'{left}{postfix}', f'{right}{postfix}'
-            _leftcam, _rightcam = f'{left}{camera_postfix}', f'{right}{camera_postfix}'
-            # generate csm models
-            self.gen_csm(_left, _right)
-            # test CSMs
-            print(str(self.cam_test(_left, _leftcam)))
-            print(str(self.cam_test(_right, _rightcam)))
+
+        # TODO: Add meta folder
+
+        # left, right, both = self.parse_stereopairs()
+        left, right = self.stereo_pair.left, self.stereo_pair.right
+
+        # with cd(Path.cwd() / both):
+        _left, _right = f'{left}{postfix}', f'{right}{postfix}'
+        _leftcam, _rightcam = f'{left}{camera_postfix}', f'{right}{camera_postfix}'
+
+        # generate csm models
+        # self.gen_csm(_left, _right)
+
+        # Given N cub files, generate json camera models for each using ale
+
+        args = {}
+        meta_kernel = None
+        if meta_kernel:
+            args['-k'] = meta_kernel
+
+        max_workers = _threads_singleprocess
+
+        cmd = self._isd_generate(
+            '-v', *convert_kwargs(args),
+            '--max_workers', max_workers,
+            _left, _right,
+        )
+        # return cmd
+
+        # test CSMs
+        print(str(self.cam_test(_left, _leftcam)))
+        print(str(self.cam_test(_right, _rightcam)))
+        return [(_left, _right), (_leftcam, _rightcam)]
 
     @rich_logger
-    def bundle_adjust(self, *vargs, postfix='_RED.cub', bundle_adjust_prefix='adjust/ba',
-                      camera_postfix='.json', **kwargs) -> sh.RunningCommand:
+    def bundle_adjust(self,
+                      postfix='_RED.cub',
+                      bundle_adjust_prefix='adjust/ba',
+                      camera_postfix='.json',
+                      **kwargs
+                      ) -> sh.RunningCommand:
         """
         Bundle adjustment wrapper
 
-        #TODO: make function that attempts to find absolute paths to vargs if they are files?
-
-        :param vargs: any number of additional positional arguments (including GCPs)
         :param postfix: postfix of images to bundle adjust
         :param camera_postfix: postfix for cameras to use
         :param bundle_adjust_prefix: where to save out bundle adjust results
         :param kwargs: kwargs to pass to bundle_adjust
         :return: RunningCommand
         """
+
+        # TODO: make function that attempts to find absolute paths to vargs if they are files?
+
         # generate the csm models first
-        self.generate_csm(postfix=postfix, camera_postfix=camera_postfix)
+        (_left, _right), (_leftcam, _rightcam) = self.generate_csm(postfix=postfix,
+                                                                   camera_postfix=camera_postfix)
+
         # setup defaults
         defaults = {
             '--datum': "D_MARS",
-            '--max-iterations': 100
+            '--max-iterations': '100'
         }
-        left, right, both = self.parse_stereopairs()
-        with cd(Path.cwd() / both):
-            args = kwargs_to_args({**defaults, **clean_kwargs(kwargs)})
-            _left, _right = f'{left}{postfix}', f'{right}{postfix}'
-            _leftcam, _rightcam = f'{left}{camera_postfix}', f'{right}{camera_postfix}'
-            return self.ba(_left, _right, _leftcam, _rightcam, *vargs, '-o',
-                           bundle_adjust_prefix, '--save-cnet-as-csv', *args)
+
+        return self.ba(
+            _left, _right, _leftcam, _rightcam,
+            '-o', self.stereo_pair.workdir + bundle_adjust_prefix,
+            '--save-cnet-as-csv',
+            convert_kwargs(defaults | clean_kwargs(kwargs))
+        )
 
     @rich_logger
-    def stereo_asap(self, stereo_conf: str, refdem: str = '', postfix='.lev1eo.cub',
-                    camera_postfix='.json', run='results_ba',
-                    output_file_prefix='${run}/${both}_ba', posargs: str = '', **kwargs):
+    def stereo_asap(self,
+                    entry_point: int = 0,
+                    stop_point: int = 5,
+                    stereo_conf: str = None,
+                    cub_postfix='.lev1.eo.cub',
+                    cam_postfix='.json',
+                    run='results',
+                    output_file_prefix='${run}/out',
+                    bundle_adjust_prefix='adjust/ba',
+                    **kwargs):
         """
-        parallel stereo common step
+        Runs parallel_stereo command.
 
+        Usage (From official documentation):
+
+        ``parallel_stereo [options] <images> [<cameras>] <output_file_prefix>``
+
+        Step 0 (Preprocessing)
+        Runs stereo_pprc. Normalizes the two images and aligns them by locating interest points
+        and matching them in both images. The program is designed to reject outlier interest
+        points. This stage writes out the pre-aligned images and the image masks. It also computes
+        the convergence angle for this stereo pair (for non-mapprojected images and with
+        alignment method homography, affineepipolar, or local_epipolar).
+
+        Step 1 (Stereo correlation)
+        Runs stereo_corr. Performs correlation using various algorithms which can be specified
+        via --stereo-algorithm. It writes a disparity map ending in D.tif.
+
+        Step 2 (Blend)
+        Runs stereo_blend. Blend the borders of adjacent disparity map tiles obtained during stereo
+        correlation. Needed for all stereo algorithms except the classical ASP_BM when run without
+        local epipolar alignment. The result is the file ending in B.tif.
+
+        Step 3 (Sub-pixel refinement)
+        Runs stereo_rfne. Performs sub-pixel correlation that refines the disparity map. Note that
+        all stereo algorithms except ASP_BM already do their own refinement at step 1, however further
+        refinement can happen at this step if the --subpixel-mode option is set. This produces
+        a file ending in RD.tif.
+
+        Step 4 (Outlier rejection)
+        Runs stereo_fltr. Performs filtering of the disparity map and (optionally) fills in holes
+        using an inpainting algorithm. It creates F.tif. Also computes GoodPixelMap.tif.
+
+        Step 5 (Triangulation)
+        Runs stereo_tri. Generates a 3D triangulated point cloud from the disparity map by
+        intersecting rays traced from the cameras. The output filename ends in PC.tif.
+
+        It is important to note that since parallel_stereo can use a lot of computational and storage
+        resources, all the intermediate data up to but not including triangulation can often be reused,
+        if only the cameras or camera adjustments change (for example, if the cameras got moved,
+        per Section 16.54.14). Such reuse is discussed in Section 8.28.11 (in the context of stereo
+        with shallow water).
+
+        If the program failed during correlation, such as because of insufficient memory,
+        it can be told to resume without recomputing the existing good partial results with the
+        option --resume-at-corr.
+
+
+        :param entry_point: entry point for ``parallel_stereo`` (from 0 to 4)
+        :param stop_point: stop point for ``parallel_stereo`` (from 1 to 5)
         :param run: stereo run output folder prefix
         :param output_file_prefix: template string for output file prefix
-        :param refdem: optional reference DEM for 2nd pass stereo
-        :param posargs: additional positional args
-        :param postfix: postfix(s) to use for input images
-        :param camera_postfix: postfix for cameras to use
+
+        :param cub_postfix: postfix(s) to use for input images
+        :param cam_postfix: postfix for cameras to use
         :param stereo_conf: stereo config file
-        :param kwargs: keyword arguments for parallel_stereo
+        :param kwargs: keyword arguments for ``parallel_stereo``
+        :param bundle_adjust_prefix: info about bundle adjust
         """
-        left, right, both = self.parse_stereopairs()
-        assert both is not None
-        output_file_prefix = Template(output_file_prefix).safe_substitute(run=run, both=both)
-        stereo_conf = Path(stereo_conf).absolute()
-        with cd(Path.cwd() / both):
-            kwargs['--stereo-file'] = stereo_conf
-            _kwargs = kwargs_to_args(clean_kwargs(kwargs))
-            _posargs = posargs.split(' ')
-            _left, _right = f'{left}{postfix}', f'{right}{postfix}'
-            _leftcam, _rightcam = f'{left}{camera_postfix}', f'{right}{camera_postfix}'
-            return self.parallel_stereo(*optional(_posargs), *_kwargs, _left, _right, _leftcam,
-                                        _rightcam, output_file_prefix, *optional(refdem))
+
+        if stop_point < entry_point:
+            raise ValueError("Stop point must be grater than entry point")
+
+        output_file_prefix = Template(output_file_prefix).safe_substitute(
+            run=self.stereo_pair.workdir + run)
+
+        # with cd(Path.cwd() / both):
+        if stereo_conf:
+            kwargs['--stereo-file'] = Path(stereo_conf).absolute()
+
+        kwargs['--entry-point'] = entry_point
+        kwargs['--stop-point'] = stop_point
+        kwargs['--bundle-adjust-prefix'] = self.stereo_pair.workdir + bundle_adjust_prefix
+
+        _options = convert_kwargs(self._stereo_config | clean_kwargs(kwargs))
+
+        left, right = self._get_pair()
+        _left, _right = f'{left}{cub_postfix}', f'{right}{cub_postfix}'
+        _leftcam, _rightcam = f'{left}{cam_postfix}', f'{right}{cam_postfix}'
+
+        # ? What is refdem, there is no such argument
+        # Posargs are only images, cameras and prefix
+        # _posargs = posargs.split(' ')
+        # *optional(_posargs),
+        # *optional(refdem)
+
+        return self.parallel_stereo(
+            *_options,
+            _left, _right, _leftcam, _rightcam,
+            output_file_prefix,
+        )
 
     @rich_logger
-    def point_cloud_align(self, datum: str, maxd: float = None, refdem: str = None,
-                          highest_accuracy: bool = True, run='results_ba', kind='map_ba_align',
+    def point_cloud_align(self,
+                          datum: str,
+                          maxd: float = None,
+                          refdem: str = None,
+                          highest_accuracy: bool = True,
+                          run='results_ba',
+                          kind='map_ba_align',
                           **kwargs):
         left, right, both = self.parse_stereopairs()
         if not refdem:
@@ -627,16 +760,25 @@ class CommonSteps(object):
             kwargs.pop('postfix', None)
             kwargs.pop('with_pedr', None)
             kwargs.pop('with_hillshade_align', None)
-            args = kwargs_to_args({**defaults, **clean_kwargs(kwargs)})
+            args = convert_kwargs({**defaults, **clean_kwargs(kwargs)})
             if str(refdem).endswith('.csv'):
                 args.extend(['--csv-format', '1:lat 2:lon 3:height_above_datum'])
             hq = ['--highest-accuracy'] if highest_accuracy else []
             return self.pc_align(*args, *hq, f'{both}_ba-PC.tif', refdem)
 
     @rich_logger
-    def point_to_dem(self, mpp, pc_suffix, just_ortho=False, just_dem=False, use_proj=None,
-                     postfix='.lev1eo.cub', run='results_ba', kind='map_ba_align',
-                     output_folder='dem', reference_spheroid='mars', **kwargs):
+    def point_to_dem(self,
+                     mpp,
+                     pc_suffix,
+                     just_ortho=False,
+                     just_dem=False,
+                     use_proj=None,
+                     postfix='.lev1eo.cub',
+                     run='results_ba',
+                     kind='map_ba_align',
+                     output_folder='dem',
+                     reference_spheroid='mars',
+                     **kwargs):
         left, right, both = self.parse_stereopairs()
         assert both is not None
         mpp_postfix = self.get_mpp_postfix(mpp)
@@ -665,11 +807,13 @@ class CommonSteps(object):
                     point_cloud = next(Path.cwd().glob(f'../*{pc_suffix}')).absolute()
                 else:
                     point_cloud = next(Path.cwd().glob(f'*{pc_suffix}')).absolute()
-                pre_args = kwargs_to_args({**defaults, **clean_kwargs(kwargs)})
+                pre_args = convert_kwargs({**defaults, **clean_kwargs(kwargs)})
                 return self.point2dem(*pre_args, str(point_cloud), *post_args)
 
     @rich_logger
-    def mapproject_both(self, refdem=None, mpp=6, postfix='.lev1eo.cub',
+    def mapproject_both(self,
+                        refdem=None,
+                        mpp=6, postfix='.lev1eo.cub',
                         camera_postfix='.lev1eo.json', bundle_adjust_prefix='adjust/ba',
                         **kwargs):
         """
@@ -700,9 +844,9 @@ class CommonSteps(object):
                 args.extend(('--bundle-adjust-prefix', bundle_adjust_prefix))
                 ext = f'ba.{ext}'
             self.mapproject(refdem, _left, _leftcam, f'{left}.{ext}', *args,
-                            *kwargs_to_args(clean_kwargs(kwargs)))
+                            *convert_kwargs(clean_kwargs(kwargs)))
             self.mapproject(refdem, _right, _rightcam, f'{right}.{ext}', *args,
-                            *kwargs_to_args(clean_kwargs(kwargs)))
+                            *convert_kwargs(clean_kwargs(kwargs)))
 
     @rich_logger
     def geoid_adjust(self, run, output_folder, **kwargs):
@@ -717,7 +861,7 @@ class CommonSteps(object):
         left, right, both = self.parse_stereopairs()
         with cd(Path.cwd() / both / run / output_folder):
             file = next(Path.cwd().glob('*-DEM.tif'))
-            args = kwargs_to_args(clean_kwargs(kwargs))
+            args = convert_kwargs(clean_kwargs(kwargs))
             return self.dem_geoid(*args, file, '-o', f'{file.stem}')
 
     @rich_logger

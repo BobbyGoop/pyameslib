@@ -17,7 +17,7 @@ import math
 import json
 import warnings
 
-from src.asp_wrapper import CommonSteps
+from src.asp_wrapper import AmesPipelineWrapper
 from src.utils.common import _threads_singleprocess, get_affine_from_file
 
 logging.basicConfig(level=logging.INFO)
@@ -114,7 +114,7 @@ class Georef(object):
             return list(csv.reader(src))[1:]
 
     def __init__(self):
-        self.cs = CommonSteps()
+        self.cs = AmesPipelineWrapper()
 
     def match_gsds(self, ref_image, *images):
         ref_gsd = int(self.cs.get_image_gsd(ref_image))

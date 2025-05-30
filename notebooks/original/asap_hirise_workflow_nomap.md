@@ -89,8 +89,8 @@ step - 4
 # Stereo Quality Report
 
 ```python
-qual_report = asap.CommonSteps().get_stereo_quality_report(f'{left}_{right}/{left}_RED.cub',
-                                                           f'{left}_{right}/{right}_RED.cub')
+qual_report = asap.AmesPipelineWrapper().get_stereo_quality_report(f'{left}_{right}/{left}_RED.cub',
+                                                                   f'{left}_{right}/{right}_RED.cub')
 print(qual_report)
 ```
 
@@ -103,7 +103,7 @@ step - 6
 {gcps} - -max - iterations
 {max_ba_iterations} - -postfix
 {postfix}
-{asap.kwarg_parse(step_kwargs, 'step_6')}
+{asap.parse_kwargs(step_kwargs, 'step_6')}
 2 > & 1 | tee - i - a. / 6
 _bundle_adjust.log. / full_log.log
 ```
@@ -116,7 +116,7 @@ hirise
 step - 7
 {config} - -postfix
 {postfix}
-{asap.kwarg_parse(step_kwargs, 'step_7')}
+{asap.parse_kwargs(step_kwargs, 'step_7')}
 2 > & 1 | tee - i - a. / 7
 _parellel_stereo_1.log. / full_log.log
 ```
@@ -129,7 +129,7 @@ hirise
 step - 8
 {config} - -postfix
 {postfix}
-{asap.kwarg_parse(step_kwargs, 'step_8')}
+{asap.parse_kwargs(step_kwargs, 'step_8')}
 2 > & 1 | tee - i - a. / 8
 _parellel_stereo_2.log. / full_log.log
 ```
@@ -142,7 +142,7 @@ hirise
 step - 9 - -mpp
 {dem_gsd * 2} - -postfix
 {postfix}
-{asap.kwarg_parse(step_kwargs, 'step_9')}
+{asap.parse_kwargs(step_kwargs, 'step_9')}
 2 > & 1 | tee - i - a. / 9
 _previews.log. / full_log.log
 ```
@@ -195,7 +195,7 @@ pre - step - 10
 {ref_dem} - -alignment - method
 {alignment_method} - -postfix
 {postfix}
-{asap.kwarg_parse(step_kwargs, 'pre_step_10')}
+{asap.parse_kwargs(step_kwargs, 'pre_step_10')}
 2 > & 1 | tee - i - a. / 10
 _pre_hillshade_align.log. / full_log.log
 ```
@@ -223,7 +223,7 @@ step - 10
 {ref_dem} - -initial - transform
 hillshade_align / out - transform.txt - -postfix
 {postfix}
-{asap.kwarg_parse(step_kwargs, 'step_10')}
+{asap.parse_kwargs(step_kwargs, 'step_10')}
 2 > & 1 | tee - i - a. / 10
 _pc_align.log. / full_log.log
 ```
