@@ -4,7 +4,7 @@
 *.cub
 *.zip
 *.tif
-./notebooks/output/
+notebooks/output/
 
 .ipynb_checkpoints
 */.ipynb_checkpoints/*
