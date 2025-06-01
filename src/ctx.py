@@ -229,7 +229,7 @@ class CTX(object):
         """
         return self.cs.point_to_dem(mpp, 'PC.tif',
                                     just_ortho=just_ortho,
-                                    postfix=postfix,
+                                    cub_postfix=postfix,
                                     run=run,
                                     kind='ba',
                                     use_proj=self.proj,
@@ -361,7 +361,7 @@ class CTX(object):
         return self.cs.point_to_dem(mpp,
                                     'trans_reference.tif',
                                     just_ortho=just_ortho,
-                                    postfix=postfix,
+                                    cub_postfix=postfix,
                                     run=run,
                                     kind='map_ba_align',
                                     use_proj=self.proj,

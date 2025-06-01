@@ -773,21 +773,22 @@ class AmesPipelineWrapper:
                      just_ortho=False,
                      just_dem=False,
                      use_proj=None,
-                     postfix='.lev1eo.cub',
-                     run='results_ba',
+                     cub_postfix='.lev1.eo.cub',
+                     run='results',
                      kind='map_ba_align',
                      output_folder='dem',
                      reference_spheroid='mars',
                      **kwargs):
-        left, right, both = self.parse_stereopairs()
-        assert both is not None
+        left, right = self._get_pair()
+
         mpp_postfix = self.get_mpp_postfix(mpp)
-        proj = self.get_srs_info(f'./{both}/{left}{postfix}',
+
+        proj = self.get_srs_info(f'{left}{cub_postfix}',
                                  use_eqc=self.projections.get(use_proj, use_proj))
         defaults = {
             '--reference-spheroid': reference_spheroid,
             '--nodata': -32767,
-            '--output-prefix': f'{both}_{kind}_{mpp_postfix}',
+            '--output-prefix': self.stereo_pair.workdir + f'{output_folder}/out-DEM_{kind}_{mpp_postfix}',
             '--dem-spacing': mpp,
             '--t_srs': proj,
         }
@@ -795,20 +796,26 @@ class AmesPipelineWrapper:
         if just_ortho:
             post_args.append('--no-dem')
             defaults['--orthoimage'] = str(
-                next((Path.cwd() / both / run).glob('*L.tif')).absolute())
+                next(Path(self.stereo_pair.workdir + run).glob('*L.tif')).absolute()
+            )
+            print(defaults)
         else:
             # check the GSD against the MPP
-            self.check_mpp_against_true_gsd(f'./{both}/{left}{postfix}', mpp)
+            self.check_mpp_against_true_gsd(f'{left}{cub_postfix}', mpp)
             post_args.extend(['--errorimage'])
-        with cd(Path.cwd() / both / run):
-            sh.mkdir(output_folder, '-p')
-            with cd(output_folder):
-                if pc_suffix == 'PC.tif':
-                    point_cloud = next(Path.cwd().glob(f'../*{pc_suffix}')).absolute()
-                else:
-                    point_cloud = next(Path.cwd().glob(f'*{pc_suffix}')).absolute()
-                pre_args = convert_kwargs({**defaults, **clean_kwargs(kwargs)})
-                return self.point2dem(*pre_args, str(point_cloud), *post_args)
+
+        # with cd(Path.cwd() / both / run):
+        #     sh.mkdir(output_folder, '-p')
+        #     with cd(output_folder):
+        # if pc_suffix == 'PC.tif':
+        #     point_cloud = next(Path.cwd().glob(f'../*{pc_suffix}')).absolute()
+        # else:
+        #     point_cloud = next(Path.cwd().glob(f'*{pc_suffix}')).absolute()
+        point_cloud = str(
+                next(Path(self.stereo_pair.workdir + run).glob(f'*{pc_suffix}')).absolute()
+        )
+        pre_args = convert_kwargs({**defaults, **clean_kwargs(kwargs)})
+        return self.point2dem(*pre_args, str(point_cloud), *post_args)
 
     @rich_logger
     def mapproject_both(self,

@@ -4426,3 +4426,405 @@ Object = ctxevenodd
 End_Object
 
 
+Object = mroctx2isis
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2016-06-10
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:18
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Import an MRO CTX image as an Isis cube"
+
+  Group = UserParameters
+    FROM    = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks-
+              /output/a_K14_059010_0916_U15_076642_0916/U15_076642_0916_XN_88-
+              S273W.IMG
+    TO      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks-
+              /output/a_K14_059010_0916_U15_076642_0916/U15_076642_0916_XN_88-
+              S273W.cub
+    SUFFIX  = 18
+    FILLGAP = true
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:02.6
+    CpuTime     = 00:00:01.3
+  End_Group
+End_Object
+
+
+Object = mroctx2isis
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2016-06-10
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:18
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Import an MRO CTX image as an Isis cube"
+
+  Group = UserParameters
+    FROM    = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks-
+              /output/a_K14_059010_0916_U15_076642_0916/K14_059010_0916_XN_88-
+              S273W.IMG
+    TO      = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks-
+              /output/a_K14_059010_0916_U15_076642_0916/K14_059010_0916_XN_88-
+              S273W.cub
+    SUFFIX  = 18
+    FILLGAP = true
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:02.6
+    CpuTime     = 00:00:01.3
+  End_Group
+End_Object
+
+
+Object = spiceinit
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2021-08-10
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:21
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Update SPICE data (kernels, pointing, and position) for
+                       a camera cube"
+
+  Group = UserParameters
+    FROM         = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/note-
+                   books/output/a_K14_059010_0916_U15_076642_0916/K14_059010_-
+                   0916_XN_88S273W.cub
+    WEB          = yes
+    ATTACH       = TRUE
+    CKSMITHED    = FALSE
+    CKRECON      = TRUE
+    CKPREDICTED  = FALSE
+    CKNADIR      = FALSE
+    SPKSMITHED   = FALSE
+    SPKRECON     = TRUE
+    SPKPREDICTED = FALSE
+    SHAPE        = SYSTEM
+    STARTPAD     = 0.0
+    ENDPAD       = 0.0
+    URL          = https://astrogeology.usgs.gov/apis/ale/v0.9.1/spiceserver/
+    PORT         = 443
+  End_Group
+
+  Group = Kernels
+    NaifFrameCode             = -74021
+    LeapSecond                = $base/kernels/lsk/naif0012.tls
+    TargetAttitudeShape       = $mro/kernels/pck/pck00008.tpc
+    TargetPosition            = (Table, $base/kernels/spk/de430.bsp,
+                                 $base/kernels/spk/mar097.bsp)
+    InstrumentPointing        = (Table,
+                                 $mro/kernels/ck/mro_sc_psp_190226_190304.bc,
+                                 $mro/kernels/fk/mro_v16.tf)
+    Instrument                = Null
+    SpacecraftClock           = $mro/kernels/sclk/MRO_SCLKSCET.00113.65536.tsc
+    InstrumentPosition        = (Table,
+                                 $mro/kernels/spk/mro_psp50_ssd_mro95a.bsp)
+    InstrumentAddendum        = $mro/kernels/iak/mroctxAddendum005.ti
+    ShapeModel                = $base/dems/molaMarsPlanetaryRadius0005.cub
+    InstrumentPositionQuality = Reconstructed
+    InstrumentPointingQuality = Reconstructed
+    CameraVersion             = 1
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:07.1
+    CpuTime     = 00:00:07.5
+  End_Group
+End_Object
+
+
+Object = spiceinit
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2021-08-10
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:21
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Update SPICE data (kernels, pointing, and position) for
+                       a camera cube"
+
+  Group = UserParameters
+    FROM         = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/note-
+                   books/output/a_K14_059010_0916_U15_076642_0916/U15_076642_-
+                   0916_XN_88S273W.cub
+    WEB          = yes
+    ATTACH       = TRUE
+    CKSMITHED    = FALSE
+    CKRECON      = TRUE
+    CKPREDICTED  = FALSE
+    CKNADIR      = FALSE
+    SPKSMITHED   = FALSE
+    SPKRECON     = TRUE
+    SPKPREDICTED = FALSE
+    SHAPE        = SYSTEM
+    STARTPAD     = 0.0
+    ENDPAD       = 0.0
+    URL          = https://astrogeology.usgs.gov/apis/ale/v0.9.1/spiceserver/
+    PORT         = 443
+  End_Group
+
+  Group = Kernels
+    NaifFrameCode             = -74021
+    LeapSecond                = $base/kernels/lsk/naif0012.tls
+    TargetAttitudeShape       = $mro/kernels/pck/pck00008.tpc
+    TargetPosition            = (Table, $base/kernels/spk/de430.bsp,
+                                 $base/kernels/spk/mar097.bsp)
+    InstrumentPointing        = (Table,
+                                 $mro/kernels/ck/mro_sc_psp_221129_221205.bc,
+                                 $mro/kernels/fk/mro_v16.tf)
+    Instrument                = Null
+    SpacecraftClock           = $mro/kernels/sclk/MRO_SCLKSCET.00113.65536.tsc
+    InstrumentPosition        = (Table,
+                                 $mro/kernels/spk/mro_psp65_ssd_mro95a.bsp)
+    InstrumentAddendum        = $mro/kernels/iak/mroctxAddendum005.ti
+    ShapeModel                = $base/dems/molaMarsPlanetaryRadius0005.cub
+    InstrumentPositionQuality = Reconstructed
+    InstrumentPointingQuality = Reconstructed
+    CameraVersion             = 1
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:07.1
+    CpuTime     = 00:00:07.6
+  End_Group
+End_Object
+
+
+Object = spicefit
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2012-07-06
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:28
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Fit a function to camera pointing"
+
+  Group = UserParameters
+    FROM = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/ou-
+           tput/a_K14_059010_0916_U15_076642_0916/K14_059010_0916_XN_88S273W.-
+           cub
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.1
+    CpuTime     = 00:00:00.5
+  End_Group
+End_Object
+
+
+Object = spicefit
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2012-07-06
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:28
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Fit a function to camera pointing"
+
+  Group = UserParameters
+    FROM = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/ou-
+           tput/a_K14_059010_0916_U15_076642_0916/U15_076642_0916_XN_88S273W.-
+           cub
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:00.1
+    CpuTime     = 00:00:00.6
+  End_Group
+End_Object
+
+
+Object = ctxcal
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2023-11-15
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:28
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Radiometrically calibrates a CTX image"
+
+  Group = UserParameters
+    FROM        = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteb-
+                  ooks/output/a_K14_059010_0916_U15_076642_0916/U15_076642_09-
+                  16_XN_88S273W.cub
+    TO          = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteb-
+                  ooks/output/a_K14_059010_0916_U15_076642_0916/U15_076642_09-
+                  16_XN_88S273W.lev1.cub
+    MONTHLYFLAT = No
+    IOF         = True
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.4
+    CpuTime     = 00:00:01.0
+  End_Group
+End_Object
+
+
+Object = ctxcal
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2023-11-15
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:28
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Radiometrically calibrates a CTX image"
+
+  Group = UserParameters
+    FROM        = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteb-
+                  ooks/output/a_K14_059010_0916_U15_076642_0916/K14_059010_09-
+                  16_XN_88S273W.cub
+    TO          = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/noteb-
+                  ooks/output/a_K14_059010_0916_U15_076642_0916/K14_059010_09-
+                  16_XN_88S273W.lev1.cub
+    MONTHLYFLAT = No
+    IOF         = True
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.5
+    CpuTime     = 00:00:00.8
+  End_Group
+End_Object
+
+
+Object = ctxevenodd
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2007-08-15
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:30
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Remove even/odd detector striping from MRO Ctx images"
+
+  Group = UserParameters
+    FROM = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/ou-
+           tput/a_K14_059010_0916_U15_076642_0916/U15_076642_0916_XN_88S273W.-
+           lev1.cub
+    TO   = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/ou-
+           tput/a_K14_059010_0916_U15_076642_0916/U15_076642_0916_XN_88S273W.-
+           lev1.eo.cub
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:02.0
+    CpuTime     = 00:00:01.1
+  End_Group
+End_Object
+
+
+Object = ctxevenodd
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2007-08-15
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:30
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Remove even/odd detector striping from MRO Ctx images"
+
+  Group = UserParameters
+    FROM = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/ou-
+           tput/a_K14_059010_0916_U15_076642_0916/K14_059010_0916_XN_88S273W.-
+           lev1.cub
+    TO   = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib/notebooks/ou-
+           tput/a_K14_059010_0916_U15_076642_0916/K14_059010_0916_XN_88S273W.-
+           lev1.eo.cub
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:02.1
+    CpuTime     = 00:00:01.1
+  End_Group
+End_Object
+
+
+Object = caminfo
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2021-11-04
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:33
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs a PVL file that contains camera information."
+
+  Group = UserParameters
+    FROM              = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib-
+                        /notebooks/output/a_K14_059010_0916_U15_076642_0916/K-
+                        14_059010_0916_XN_88S273W.lev1.eo.cub
+    TO                = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib-
+                        /notebooks/output/a_K14_059010_0916_U15_076642_0916/K-
+                        14_059010_0916_XN_88S273W.lev1.eo.caminfo
+    FORMAT            = PVL
+    APPEND            = false
+    GEOMETRY          = TRUE
+    ISISLABEL         = FALSE
+    ORIGINALLABEL     = FALSE
+    STATISTICS        = FALSE
+    CAMSTATS          = FALSE
+    USECAMSTATSTBL    = FALSE
+    LINC              = 1
+    SINC              = 1
+    USELABEL          = FALSE
+    POLYGON           = True
+    INCTYPE           = LINCSINC
+    INCREASEPRECISION = FALSE
+    MAXEMISSION       = 180.0
+    MAXINCIDENCE      = 180.0
+    SPICE             = FALSE
+    VCAMERA           = FALSE
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.8
+    CpuTime     = 00:00:02.4
+  End_Group
+End_Object
+
+
+Object = caminfo
+  IsisVersion       = "8.3.0  | 2024-10-01"
+  ProgramVersion    = 2021-11-04
+  ProgramPath       = /home/ivan/miniconda3/envs/asp/bin
+  ExecutionDateTime = 2025-06-01T02:47:35
+  HostName          = Unknown
+  UserName          = ivan
+  Description       = "Outputs a PVL file that contains camera information."
+
+  Group = UserParameters
+    FROM              = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib-
+                        /notebooks/output/a_K14_059010_0916_U15_076642_0916/U-
+                        15_076642_0916_XN_88S273W.lev1.eo.cub
+    TO                = /mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib-
+                        /notebooks/output/a_K14_059010_0916_U15_076642_0916/U-
+                        15_076642_0916_XN_88S273W.lev1.eo.caminfo
+    FORMAT            = PVL
+    APPEND            = false
+    GEOMETRY          = TRUE
+    ISISLABEL         = FALSE
+    ORIGINALLABEL     = FALSE
+    STATISTICS        = FALSE
+    CAMSTATS          = FALSE
+    USECAMSTATSTBL    = FALSE
+    LINC              = 1
+    SINC              = 1
+    USELABEL          = FALSE
+    POLYGON           = True
+    INCTYPE           = LINCSINC
+    INCREASEPRECISION = FALSE
+    MAXEMISSION       = 180.0
+    MAXINCIDENCE      = 180.0
+    SPICE             = FALSE
+    VCAMERA           = FALSE
+  End_Group
+
+  Group = Accounting
+    ConnectTime = 00:00:01.7
+    CpuTime     = 00:00:02.4
+  End_Group
+End_Object
+
+
