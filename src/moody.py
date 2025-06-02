@@ -179,6 +179,7 @@ class ODE(object):
             minlat: float,
             maxlon: float,
             maxlat: float,
+            output_dir: str = ".",
             wkt_footprint: Optional[str] = None,
             ext: str = "csv",
             **kwargs,
@@ -224,7 +225,7 @@ class ODE(object):
         for f in resultfile:
             fname = str(f["URL"].split("/")[-1])
             fname = fname.replace("-", "__neg__")
-            download_file(f["URL"], fname, 1024)
+            download_file(f["URL"], output_dir, fname, 1024)
 
     def get_meta(self, **kwargs):
         """

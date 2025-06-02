@@ -1,4 +1,5 @@
 import logging
+import os.path
 from collections import namedtuple
 
 from src import moody
@@ -248,6 +249,10 @@ class AmesPipelineWrapper:
     #     cmd = sh.isd_generate('-v', *kwargs_to_args(args), '--max_workers', max_workers, *cubs,
     #                           _out=sys.stdout, _err=sys.stderr, _log_msg=custom_log)
     #     return cmd
+
+    @property
+    def workdir(self):
+        return self.stereo_pair.workdir
 
     def _get_pair(self):
         return (self.stereo_pair.left, self.stereo_pair.right)
@@ -517,7 +522,13 @@ class AmesPipelineWrapper:
         return str(float(mpp)).replace('.', '_')
 
     @rich_logger
-    def get_pedr_4_pcalign_w_moody(self, cub_path, proj=None, https=True) -> str:
+    def get_pedr_4_pcalign_w_moody(self,
+                                   cub_path,
+                                   proj=None,
+                                   https=True,
+                                   data_dir='pedr',
+                                   output_prefix='pedr4align'
+                                   ) -> None:
         """
         Python replacement for pedr_bin4pc_align.sh
         that uses moody and the PDS geosciences node REST API
@@ -527,28 +538,49 @@ class AmesPipelineWrapper:
         :param cub_path: path to input file to get query geometry
         """
         cub_path = Path(cub_path).absolute()
-        out_name = cub_path.parent.name
-        cwd = cub_path.parent
-        with cd(cwd):
-            out_dict = AmesPipelineWrapper.get_cam_info(cub_path)['UniversalGroundRange']
-            minlon, maxlon, minlat, maxlat = out_dict['MinimumLongitude'], out_dict[
-                'MaximumLongitude'], out_dict['MinimumLatitude'], out_dict['MaximumLatitude']
-            # use moody to get the pedr in shape file form, we export a csv for what we need to align to
-            moody.ODE(https=https).pedr(minlon=float(minlon), minlat=float(minlat),
-                                        maxlon=float(maxlon), maxlat=float(maxlat), ext='shp')
-            shpfile = next(Path.cwd().glob('*z.shp'))
-            sql_query = f'SELECT Lat, Lon, Planet_Rad - 3396190.0 AS Datum_Elev, Topography FROM "{shpfile.stem}"'
-            # create the minified file just for pc_align
-            sh.ogr2ogr('-f', 'CSV', '-sql', sql_query, f'./{out_name}_pedr4align.csv',
-                       shpfile.name, _log_msg=custom_log)
-            # get projection info
-            projection = self.get_srs_info(cub_path, use_eqc=proj)
-            print(projection)
-            # reproject to image coordinates for some gis tools
-            # todo: this fails sometimes on the projection string, a proj issue... trying again in command line seems to fix it
-            sh.ogr2ogr('-t_srs', projection, '-sql', sql_query, f'./{out_name}_pedr4align.shp',
-                       shpfile.name, _log_msg=custom_log)
-        return f'{str(cwd)}/{out_name}_pedr4align.csv'
+
+        pedr_dir = self.stereo_pair.workdir + data_dir
+
+        if not os.path.exists(pedr_dir):
+            os.makedirs(pedr_dir)
+
+        # out_name = cub_path.parent.name
+        # cwd = cub_path.parent
+        # with cd(cwd):
+
+        out_dict = AmesPipelineWrapper.get_cam_info(cub_path)['UniversalGroundRange']
+        minlon, maxlon, minlat, maxlat = out_dict['MinimumLongitude'], out_dict[
+            'MaximumLongitude'], out_dict['MinimumLatitude'], out_dict['MaximumLatitude']
+
+        # use moody to get the pedr in shape file form, we export a csv for what we need to align to
+        moody.ODE(https=https).pedr(
+            minlon=float(minlon),
+            minlat=float(minlat),
+            maxlon=float(maxlon),
+            maxlat=float(maxlat),
+            output_dir=pedr_dir,
+            ext='shp'
+        )
+
+        shpfile = next(Path(pedr_dir).glob('*z.shp'))
+        out_name = self.stereo_pair.left
+
+        sql_query = f'SELECT Lat, Lon, Planet_Rad - 3396190.0 AS Datum_Elev, Topography FROM "{shpfile.stem}"'
+
+        # create the minified file just for pc_align
+        sh.ogr2ogr('-f', 'CSV', '-sql', sql_query, self.workdir + f"{output_prefix}.csv",
+                   shpfile.absolute(), _log_msg=custom_log)
+
+        # get projection info
+        projection = self.get_srs_info(cub_path, use_eqc=proj)
+        # print(projection)
+
+        # reproject to image coordinates for some gis tools
+        # todo: this fails sometimes on the projection string, a proj issue... trying again in command line seems to fix it
+        sh.ogr2ogr('-t_srs', projection, '-sql', sql_query, self.workdir + f"{data_dir}/{output_prefix}.shp",
+                   shpfile.absolute(), _log_msg=custom_log)
+
+        # return f'{str(cwd)}/{out_name}_pedr4align.csv'
 
     def generate_csm(self, postfix='_RED.cub', camera_postfix='_RED.json'):
         """
@@ -637,6 +669,7 @@ class AmesPipelineWrapper:
                     run='results',
                     output_file_prefix='${run}/out',
                     bundle_adjust_prefix='adjust/ba',
+                    ref_dem=None,
                     **kwargs):
         """
         Runs parallel_stereo command.
@@ -686,6 +719,7 @@ class AmesPipelineWrapper:
         option --resume-at-corr.
 
 
+
         :param entry_point: entry point for ``parallel_stereo`` (from 0 to 4)
         :param stop_point: stop point for ``parallel_stereo`` (from 1 to 5)
         :param run: stereo run output folder prefix
@@ -696,6 +730,7 @@ class AmesPipelineWrapper:
         :param stereo_conf: stereo config file
         :param kwargs: keyword arguments for ``parallel_stereo``
         :param bundle_adjust_prefix: info about bundle adjust
+        :param ref_dem: optional reference DEM to use for point cloud alignment
         """
 
         if stop_point < entry_point:
@@ -724,47 +759,58 @@ class AmesPipelineWrapper:
         # *optional(_posargs),
         # *optional(refdem)
 
+        # Don't forget to pass reference DEM if provided
         return self.parallel_stereo(
             *_options,
             _left, _right, _leftcam, _rightcam,
             output_file_prefix,
+            *optional(ref_dem)
         )
 
     @rich_logger
     def point_cloud_align(self,
                           datum: str,
-                          maxd: float = None,
-                          refdem: str = None,
+                          src_dem: str,
+                          ref_dem: str,
+                          max_disparity: float = None,
                           highest_accuracy: bool = True,
-                          run='results_ba',
-                          kind='map_ba_align',
+                          kind='map_ba_aligned',
                           **kwargs):
-        left, right, both = self.parse_stereopairs()
-        if not refdem:
-            refdem = str(Path.cwd() / both / f'{both}_pedr4align.csv')
-        refdem = Path(refdem).absolute()
-        if not maxd:
-            dem = next((Path.cwd() / both / run / 'dem').glob(f'{both}*DEM.tif'))
-            # todo implement a new command or path to do a initial NED translation with this info
-            maxd, _, _, _ = self.estimate_max_disparity(dem, refdem)
+        left, right = self._get_pair()
+
+        # Use DEM or PEDR data as reference
+        # if not ref_dem:
+        #     ref_dem = str(Path.cwd() / both / f'{both}_pedr4align.csv')
+        # ref_dem = Path(ref_dem).absolute()
+
+        if not max_disparity:
+            # dem = next(Path(self.stereo_pair.workdir + 'dem/').glob(f'*24_0-DEM.tif'))
+            # # todo implement a new command or path to do a initial NED translation with this info
+            max_disparity, _, _, _ = self.estimate_max_disparity(src_dem, ref_dem)
+
         defaults = {
             '--num-iterations': 4000,
             '--alignment-method': 'fgr',
             '--threads': _threads_singleprocess,
             '--datum': datum,
-            '--max-displacement': maxd,
-            '--output-prefix': f'dem_align/{both}_{kind}'
+            '--max-displacement': max_disparity,
+            '--output-prefix': self.workdir + f'pc_align/out-PC_{kind}'
         }
-        with cd(Path.cwd() / both / run):
-            # todo allow both to be DEMs
-            kwargs.pop('postfix', None)
-            kwargs.pop('with_pedr', None)
-            kwargs.pop('with_hillshade_align', None)
-            args = convert_kwargs({**defaults, **clean_kwargs(kwargs)})
-            if str(refdem).endswith('.csv'):
-                args.extend(['--csv-format', '1:lat 2:lon 3:height_above_datum'])
-            hq = ['--highest-accuracy'] if highest_accuracy else []
-            return self.pc_align(*args, *hq, f'{both}_ba-PC.tif', refdem)
+
+        # with cd(Path.cwd() / both / run):
+
+        # todo allow both to be DEMs
+        kwargs.pop('postfix', None)
+        kwargs.pop('with_pedr', None)
+        kwargs.pop('with_hillshade_align', None)
+
+        args = convert_kwargs(defaults | clean_kwargs(kwargs))
+        if str(ref_dem).endswith('.csv'):
+            args.extend(['--csv-format', '1:lat 2:lon 3:height_above_datum'])
+
+        hq = ['--highest-accuracy'] if highest_accuracy else []
+
+        return self.pc_align(*args, *hq, src_dem, ref_dem)
 
     @rich_logger
     def point_to_dem(self,
@@ -819,57 +865,78 @@ class AmesPipelineWrapper:
 
     @rich_logger
     def mapproject_both(self,
-                        refdem=None,
-                        mpp=6, postfix='.lev1eo.cub',
-                        camera_postfix='.lev1eo.json', bundle_adjust_prefix='adjust/ba',
+                        ref_dem='D_MARS',
+                        mpp=6,
+                        cub_postfix='.lev1.eo.cub',
+                        cam_postfix='.lev1.eo.json',
+                        bundle_adjust_prefix='adjust/ba',
+                        check_gsd=True,
                         **kwargs):
         """
         Mapproject the left and right images against a reference DEM
 
-        :param refdem: reference dem to map project using
+        Usage:
+
+        ``mapproject [options] <dem> <camera-image> <camera-model> <output-image>``
+
+        :param check_gsd: whether to check the GSD of the images against the provided mpp
+        :param ref_dem: reference dem to map project using. Overwrite with a path to a DEM file
         :param mpp: target GSD
-        :param postfix: postfix for cub files to use
-        :param camera_postfix: postfix for cameras to use
+        :param cub_postfix: postfix for cub files to use
+        :param cam_postfix: postfix for cameras to use
         :param bundle_adjust_prefix: where to save out bundle adjust results
         """
-        left, right, both = self.parse_stereopairs()
-        if not refdem:
-            refdem = 'D_MARS'
+        left, right = self._get_pair()
+
+        if not ref_dem:
+            ref_dem = 'D_MARS'
         else:
             # todo you can map project against the datum, check if there is a suffix
-            refpath = Path(refdem)
-            refdem = refdem if refpath.suffix == '' else refpath.absolute()
-        with cd(Path.cwd() / both):
-            # double check provided gsd
-            _left, _right = f'{left}{postfix}', f'{right}{postfix}'
-            _leftcam, _rightcam = f'{left}{camera_postfix}', f'{right}{camera_postfix}'
-            # map project both images against the reference dem
-            # might need to do par do here
-            args = ['--mpp', mpp]
-            ext = 'map.tif'
-            if bundle_adjust_prefix:
-                args.extend(('--bundle-adjust-prefix', bundle_adjust_prefix))
-                ext = f'ba.{ext}'
-            self.mapproject(refdem, _left, _leftcam, f'{left}.{ext}', *args,
-                            *convert_kwargs(clean_kwargs(kwargs)))
-            self.mapproject(refdem, _right, _rightcam, f'{right}.{ext}', *args,
-                            *convert_kwargs(clean_kwargs(kwargs)))
+            ref_path = Path(ref_dem)
+            ref_dem = ref_dem if ref_path.suffix == '' else ref_path.absolute()
+
+        # double check provided gsd
+        _left, _right = f'{left}{cub_postfix}', f'{right}{cub_postfix}'
+        _leftcam, _rightcam = f'{left}{cam_postfix}', f'{right}{cam_postfix}'
+        # map project both images against the reference dem
+        # might need to do par do here
+        kwargs['--mpp'] = mpp
+        ext = 'map.tif'
+        if bundle_adjust_prefix:
+            kwargs['--bundle-adjust-prefix'] = self.stereo_pair.workdir + bundle_adjust_prefix
+            ext = f'ba.{ext}'
+
+        if check_gsd:
+            self.check_mpp_against_true_gsd(_left, mpp)
+            self.check_mpp_against_true_gsd(_right, mpp)
+
+        _options = convert_kwargs(clean_kwargs(kwargs))
+
+
+        self.mapproject(ref_dem, _left, _leftcam, f'{left}.{ext}',
+                        *_options)
+        self.mapproject(ref_dem, _right, _rightcam, f'{right}.{ext}',
+                        *_options)
 
     @rich_logger
-    def geoid_adjust(self, run, output_folder, **kwargs):
+    def geoid_adjust(self,
+                     src_dem_sfx: str,
+                     run: str,
+                     output_prefix: str = "-geoid",
+                     **kwargs):
         """
         Adjust DEM to geoid
 
         Run geoid adjustment on dem for final science ready product
         :param run:
-        :param output_folder:
+        :param run:
         :param kwargs:
         """
-        left, right, both = self.parse_stereopairs()
-        with cd(Path.cwd() / both / run / output_folder):
-            file = next(Path.cwd().glob('*-DEM.tif'))
-            args = convert_kwargs(clean_kwargs(kwargs))
-            return self.dem_geoid(*args, file, '-o', f'{file.stem}')
+        # with cd(Path.cwd() / both / run / output_folder):
+        file: Path= next(Path(run).glob(f"*{src_dem_sfx}"))
+        out_name = os.path.join(file.parent.absolute(), file.stem)
+        args = convert_kwargs(clean_kwargs(kwargs))
+        return self.dem_geoid(*args, str(file), '-o', os.path.join(file.parent.absolute(), file.stem) + output_prefix)
 
     @rich_logger
     def rescale_cub(self, src_file: str, factor=4, overwrite=False, dst_file=None):

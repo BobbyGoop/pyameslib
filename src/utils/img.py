@@ -93,11 +93,11 @@ def download_edr_img_files_par(
         pool.starmap(get, list(zip(urls, filenames)))
 
 
-def download_file(url, output_path, product_name, chunk_size):
+def download_file(url, output_dir, product_name, chunk_size):
     url = url.replace(
         "pds-imaging.jpl.nasa.gov/data/", "planetarydata.jpl.nasa.gov/img/data/"
     )
-    full_path = os.path.join(output_path, product_name)
+    full_path = os.path.join(output_dir, product_name)
 
     if os.path.exists(full_path):
         print(f"File {product_name} already exists, skipping download.")
@@ -113,7 +113,9 @@ def download_file(url, output_path, product_name, chunk_size):
                     output.flush()
             r.close()
         output.flush()
-    if str(product_name).endswith(".zip"):
-        shutil.unpack_archive(product_name)
-        if os.path.exists(product_name):
-            os.remove(product_name)
+
+    #     For PEDR or HiRISE data
+    if str(full_path).endswith(".zip"):
+        shutil.unpack_archive(str(full_path), extract_dir=output_dir)
+        if os.path.exists(full_path):
+            os.remove(full_path)

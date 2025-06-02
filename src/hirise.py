@@ -265,8 +265,8 @@ class HiRISE(object):
         :param postfix: postfix for cub files to use
         :param gsd: override for final resolution in meters per pixel (mpp)
         """
-        return self.cs.mapproject_both(refdem=refdem, mpp=gsd, postfix=postfix,
-                                       camera_postfix=camera_postfix,
+        return self.cs.mapproject_both(ref_dem=refdem, mpp=gsd, cub_postfix=postfix,
+                                       cam_postfix=camera_postfix,
                                        bundle_adjust_prefix=bundle_adjust_prefix, **kwargs)
 
     @rich_logger
@@ -439,7 +439,7 @@ class HiRISE(object):
         else:
             pass
 
-        return self.cs.point_cloud_align(self.datum, maxd=maxd, refdem=refdem,
+        return self.cs.point_cloud_align(self.datum, max_disparity=maxd, ref_dem=refdem,
                                          highest_accuracy=highest_accuracy, run=run,
                                          kind='align', **kwargs)
 
@@ -479,4 +479,4 @@ class HiRISE(object):
         :param output_folder:
         :param kwargs:
         """
-        return self.cs.geoid_adjust(run=run, output_folder=output_folder, **kwargs)
+        return self.cs.geoid_adjust(run=run, run=output_folder, **kwargs)

@@ -339,7 +339,7 @@ class CTX(object):
         :param refdem: path to pedr csv file or reference DEM/PC, if not provided assume pedr4align.csv is available
         :param kwargs:
         """
-        return self.cs.point_cloud_align(self.datum, maxd=maxd, refdem=refdem,
+        return self.cs.point_cloud_align(self.datum, max_disparity=maxd, ref_dem=refdem,
                                          highest_accuracy=highest_accuracy, run=run,
                                          kind='map_ba_align', **kwargs)
 
@@ -378,4 +378,4 @@ class CTX(object):
         :param output_folder:
         :param kwargs:
         """
-        return self.cs.geoid_adjust(run=run, output_folder=output_folder, **kwargs)
+        return self.cs.geoid_adjust(run=run, run=output_folder, **kwargs)
