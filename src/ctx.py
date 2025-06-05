@@ -378,4 +378,4 @@ class CTX(object):
         :param output_folder:
         :param kwargs:
         """
-        return self.cs.geoid_adjust(run=run, run=output_folder, **kwargs)
+        return self.cs.geoid_adjust(run=run,  **kwargs)

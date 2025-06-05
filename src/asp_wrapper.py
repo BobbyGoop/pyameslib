@@ -738,7 +738,7 @@ class AmesPipelineWrapper:
 
         output_file_prefix = Template(output_file_prefix).safe_substitute(
             run=self.stereo_pair.workdir + run)
-
+        print(output_file_prefix)
         # with cd(Path.cwd() / both):
         if stereo_conf:
             kwargs['--stereo-file'] = Path(stereo_conf).absolute()
@@ -758,13 +758,17 @@ class AmesPipelineWrapper:
         # _posargs = posargs.split(' ')
         # *optional(_posargs),
         # *optional(refdem)
-
+        posargs = [_left, _right, _leftcam, _rightcam, output_file_prefix]
+        if ref_dem:
+            posargs.append(ref_dem)
         # Don't forget to pass reference DEM if provided
+
         return self.parallel_stereo(
             *_options,
-            _left, _right, _leftcam, _rightcam,
-            output_file_prefix,
-            *optional(ref_dem)
+            *posargs,
+            # _left, _right, _leftcam, _rightcam,
+            # output_file_prefix,
+            # ref_dem if ref_dem else ...
         )
 
     @rich_logger

@@ -82,10 +82,11 @@ def silent_cd(newdir):
 def optional(variable, null=""):
     # TODO: this is equivalent to something from functional programming that I am forgetting the name of
     if isinstance(variable, (bool, int, float, str, Path)):
-        variable = [variable]
-    for _ in variable:
-        if _ != null:
-            yield _
+        for _ in [variable]:
+            if _ != null:
+                yield _
+    else:
+        yield null
 
 
 def cmd_to_string(command: sh.RunningCommand) -> str:
