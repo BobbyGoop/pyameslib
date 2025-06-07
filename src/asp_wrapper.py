@@ -565,7 +565,7 @@ class AmesPipelineWrapper:
         shpfile = next(Path(pedr_dir).glob('*z.shp'))
         out_name = self.stereo_pair.left
 
-        sql_query = f'SELECT Lat, Lon, Planet_Rad - 3396190.0 AS Datum_Elev, Topography FROM "{shpfile.stem}"'
+        sql_query = f'SELECT Lat, Lon, Planet_Rad - 3396190.0 AS Datum_Elev, Planet_Rad, Topography FROM "{shpfile.stem}"'
 
         # create the minified file just for pc_align
         sh.ogr2ogr('-f', 'CSV', '-sql', sql_query, self.workdir + f"{output_prefix}.csv",
@@ -776,9 +776,10 @@ class AmesPipelineWrapper:
                           datum: str,
                           src_dem: str,
                           ref_dem: str,
-                          max_disparity: float = None,
+                          max_displacement: float = None,
                           highest_accuracy: bool = True,
-                          kind='map_ba_aligned',
+                          kind='map_ba_pedr',
+                          pc_prefix='pc_align/out-PC',
                           **kwargs):
         left, right = self._get_pair()
 
@@ -787,18 +788,18 @@ class AmesPipelineWrapper:
         #     ref_dem = str(Path.cwd() / both / f'{both}_pedr4align.csv')
         # ref_dem = Path(ref_dem).absolute()
 
-        if not max_disparity:
+        if not max_displacement:
             # dem = next(Path(self.stereo_pair.workdir + 'dem/').glob(f'*24_0-DEM.tif'))
             # # todo implement a new command or path to do a initial NED translation with this info
-            max_disparity, _, _, _ = self.estimate_max_disparity(src_dem, ref_dem)
+            max_displacement, _, _, _ = self.estimate_max_disparity(src_dem, ref_dem)
 
         defaults = {
             '--num-iterations': 4000,
             '--alignment-method': 'fgr',
             '--threads': _threads_singleprocess,
             '--datum': datum,
-            '--max-displacement': max_disparity,
-            '--output-prefix': self.workdir + f'pc_align/out-PC_{kind}'
+            '--max-displacement': max_displacement,
+            '--output-prefix': self.workdir + f'{pc_prefix}_{kind}'
         }
 
         # with cd(Path.cwd() / both / run):

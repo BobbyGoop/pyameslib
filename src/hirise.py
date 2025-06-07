@@ -439,7 +439,7 @@ class HiRISE(object):
         else:
             pass
 
-        return self.cs.point_cloud_align(self.datum, max_disparity=maxd, ref_dem=refdem,
+        return self.cs.point_cloud_align(self.datum, max_displacement=maxd, ref_dem=refdem,
                                          highest_accuracy=highest_accuracy, run=run,
                                          kind='align', **kwargs)
 
