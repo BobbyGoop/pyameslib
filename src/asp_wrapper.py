@@ -193,6 +193,9 @@ class AmesPipelineWrapper:
         self.point2dem = Command('point2dem').bake('--threads', _threads_singleprocess,
                                                    _out=sys.stdout,
                                                    _err=sys.stderr, _log_msg=custom_log)
+        self.point2mesh= Command('point2mesh').bake('--threads', _threads_singleprocess,
+                                                   _out=sys.stdout,
+                                                   _err=sys.stderr, _log_msg=custom_log)
         self.pc_align = Command('pc_align').bake('--save-inv-transform', _out=sys.stdout,
                                                  _err=sys.stderr, _log_msg=custom_log)
         self.dem_geoid = Command('dem_geoid').bake(_out=sys.stdout, _err=sys.stderr,
@@ -867,6 +870,30 @@ class AmesPipelineWrapper:
         )
         pre_args = convert_kwargs({**defaults, **clean_kwargs(kwargs)})
         return self.point2dem(*pre_args, str(point_cloud), *post_args)
+
+    @rich_logger
+    def point_to_mesh(self,
+                     pc_suffix,
+                     step_size=10,
+                     texture_size=5,
+                     center= True,
+                     run='results',
+                     output_folder='mesh',
+                     **kwargs):
+
+        post_args = []
+        if center:
+            post_args.append('--center')
+        defaults = {
+            '--point-cloud-step-size': step_size,
+            '--texture-step-size': texture_size,
+            '--output-prefix': self.stereo_pair.workdir + f'{output_folder}/out-MESH',
+        }
+        point_cloud = str(
+            next(Path(self.stereo_pair.workdir + run).glob(f'*{pc_suffix}')).absolute()
+        )
+        pre_args = convert_kwargs({**defaults, **clean_kwargs(kwargs)})
+        return self.point2mesh(*pre_args, str(point_cloud), *post_args)
 
     @rich_logger
     def mapproject_both(self,

@@ -1,7 +1,7 @@
 # ASAP-Stereo (Ames Stereo Automated Pipeline)
 
 ```shell
-jupyter lab --no-browser --notebook-dir=/mnt/c/Users/Ivan/Documents/PROJECTS/Python/pyameslib --port=8885 --autoreload
+jupyter lab --no-browser --notebook-dir=~ --port=8885 --autoreload
 ```
 
 ```shell
